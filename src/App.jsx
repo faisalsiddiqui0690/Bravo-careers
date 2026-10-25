@@ -1,26 +1,12 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
 import './index.css';
 
-// Lazy load components for better performance
-const Hero = lazy(() => import('./components/Hero'));
-const Services = lazy(() => import('./components/Services'));
-const Process = lazy(() => import('./components/Process'));
-const Reviews = lazy(() => import('./components/Reviews'));
-const Projects = lazy(() => import('./components/Projects'));
-const Stats = lazy(() => import('./components/Stats'));
-const FAQ = lazy(() => import('./components/FAQ'));
-const FinalCTA = lazy(() => import('./components/FinalCTA'));
-const ServicesPage = lazy(() => import('./components/ServicesPage'));
-const ProjectsPage = lazy(() => import('./components/ProjectsPage'));
-const ContactPage = lazy(() => import('./components/ContactPage'));
+const BravoWebsite = lazy(() => import('./components/BravoWebsite'));
 const LegalPageView = lazy(() => import('./components/LegalPageView'));
-const ProjectDetailPage = lazy(() => import('./components/ProjectDetailPage'));
-const ServiceDetailPage = lazy(() => import('./components/ServiceDetailPage'));
-const CareersPage = lazy(() => import('./components/CareersPage'));
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'));
 const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'));
 const AdminProjects = lazy(() => import('./admin/pages/AdminProjects'));
@@ -44,38 +30,33 @@ const LoadingFallback = () => (
 );
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (hash) {
+      const timeoutId = window.setTimeout(() => document.querySelector(hash)?.scrollIntoView(), 100);
+      return () => window.clearTimeout(timeoutId);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
 
   return null;
 };
 
 function App() {
-  const [theme, setTheme] = useState(() => {
-    // Initialize theme immediately from localStorage
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    return savedTheme;
-  });
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    localStorage.setItem('theme', newTheme);
-  };
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.classList.remove('dark');
+  }, []);
 
   return (
     <>
       <ScrollToTop />
-      {!isAdminRoute && <Navbar theme={theme} toggleTheme={toggleTheme} />}
+      {!isAdminRoute && <Navbar />}
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -99,53 +80,15 @@ function App() {
           </Route>
           <Route path="/" element={
             <>
-              <Hero />
-              <Services />
-              <Process />
-              <Projects />
-              <Reviews />
-              <Stats />
-              <FAQ />
-              <FinalCTA />
+              <BravoWebsite />
               <Footer />
               <BackToTop />
             </>
           } />
-          <Route path="/services" element={
-            <>
-              <ServicesPage theme={theme} toggleTheme={toggleTheme} />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
-          <Route path="/services/:id" element={
-            <>
-              <ServiceDetailPage />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
-          <Route path="/projects" element={
-            <>
-              <ProjectsPage theme={theme} toggleTheme={toggleTheme} />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
-          <Route path="/projects/:id" element={
-            <>
-              <ProjectDetailPage />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
-          <Route path="/contact" element={
-            <>
-              <ContactPage theme={theme} toggleTheme={toggleTheme} />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
+          <Route path="/services/*" element={<Navigate to="/#services" replace />} />
+          <Route path="/projects/*" element={<Navigate to="/#services" replace />} />
+          <Route path="/contact" element={<Navigate to="/#contact" replace />} />
+          <Route path="/careers" element={<Navigate to="/#services" replace />} />
           <Route path="/legal/:slug" element={
             <>
               <LegalPageView />
@@ -153,13 +96,7 @@ function App() {
               <BackToTop />
             </>
           } />
-          <Route path="/careers" element={
-            <>
-              <CareersPage />
-              <Footer />
-              <BackToTop />
-            </>
-          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     </>
