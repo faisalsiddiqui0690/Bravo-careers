@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #0052CC;
+    --primary-dark: #0039A6;
+    --primary-light: #DEEBFF;
+    --secondary: #FF5630;
+    --accent: #00B8D4;
+    --success: #216E4E;
+    --dark-bg: #0F1419;
+    --dark-surface: #161B22;
+    --dark-text: #EAEEF2;
+    --light-bg: #FFFFFF;
+    --light-surface: #F7F8FA;
+    --light-text: #172B4D;
+    --border: #738496;
+    --subtle: rgba(255, 255, 255, 0.08);
+
+    --bg: var(--light-bg);
+    --surface: var(--light-surface);
+    --text: var(--light-text);
+    --text-secondary: #44546F;
+    --text-tertiary: #626F86;
+  }
+
+  [data-theme="dark"] {
+    --bg: var(--dark-bg);
+    --surface: var(--dark-surface);
+    --text: var(--dark-text);
+    --text-secondary: #B6C2CF;
+    --text-tertiary: #738496;
+    --subtle: rgba(255, 255, 255, 0.08);
+    --border: #738496;
+  }
+
+  [data-theme="light"] {
+    --bg: var(--light-bg);
+    --surface: var(--light-surface);
+    --text: var(--light-text);
+    --text-secondary: #44546F;
+    --text-tertiary: #626F86;
+    --subtle: rgba(0, 0, 0, 0.12);
+    --border: #A0AEC0;
+  }
+
+  html {
+    @apply scroll-smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans bg-bg text-text transition-colors duration-300 leading-relaxed overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    backface-visibility: hidden;
+  }
+}
+
+@layer components {
+  /* Smoother transitions for all elements */
+  * {
+    @apply transition-[background-color,border-color,color,box-shadow] duration-300;
+  }
+
+  /* GPU Acceleration for animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+  }
+
+  .container {
+    @apply max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-7 md:py-3 rounded-xl font-semibold transition-all duration-300 cursor-pointer min-w-0 md:min-w-[150px] leading-none active:scale-95 text-[13px] md:text-base;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-br from-[#0052CC] to-[#00B8D4] text-white shadow-lg shadow-primary/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30 hover:brightness-110;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-primary border-2 border-primary shadow-sm hover:-translate-y-1 hover:bg-[#f0f7ff] hover:shadow-md dark:bg-surface dark:text-text dark:border-border dark:hover:bg-subtle;
+  }
+
+  .section-header {
+    @apply text-center mb-8 md:mb-12 opacity-0 translate-y-[30px] transition-all duration-700 ease-out;
+  }
+
+  .section-header.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  .reveal-on-scroll {
+    @apply opacity-0 translate-y-[30px] transition-all duration-700 ease-out gpu-accelerated;
+  }
+
+  .reveal-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Custom scrollbar for better UX */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-subtle rounded-full hover:bg-border transition-colors;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
+
+  /* Legal Content Styling - Theme Aware */
+  .legal-content {
+    @apply text-text-secondary;
+  }
+
+  .legal-content h1,
+  .legal-content h2,
+  .legal-content h3,
+  .legal-content h4,
+  .legal-content h5,
+  .legal-content h6 {
+    @apply text-text font-bold mb-4 mt-6;
+  }
+
+  .legal-content h1 {
+    @apply text-2xl;
+  }
+
+  .legal-content h2 {
+    @apply text-xl mb-3 mt-6;
+  }
+
+  .legal-content h3 {
+    @apply text-lg mb-2 mt-4;
+  }
+
+  .legal-content p {
+    @apply text-text-secondary leading-relaxed mb-4;
+  }
+
+  .legal-content ul,
+  .legal-content ol {
+    @apply text-text-secondary mb-4 pl-6;
+  }
+
+  .legal-content li {
+    @apply mb-2;
+  }
+
+  .legal-content strong,
+  .legal-content b {
+    @apply text-text font-semibold;
+  }
+
+  .legal-content a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  .legal-content ul {
+    @apply list-disc;
+  }
+
+  .legal-content ol {
+    @apply list-decimal;
+  }
+
+  /* Override any inline styles from database content */
+  .legal-content * {
+    color: inherit !important;
+  }
+
+  .legal-content h1,
+  .legal-content h2,
+  .legal-content h3,
+  .legal-content h4,
+  .legal-content h5,
+  .legal-content h6 {
+    color: var(--text) !important;
+  }
+
+  .legal-content strong,
+  .legal-content b {
+    color: var(--text) !important;
+  }
+
+  .legal-content a {
+    color: var(--primary) !important;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent;
+  }
+}
+
+/* Base animations if needed outside of Tailwind config (though most are in tailwind.config.js now) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Project Detail Page Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}

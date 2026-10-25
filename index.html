@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- Primary Meta Tags -->
+    <title>NPquantumtech - Complete IT Solutions | Web Development, App Development & CRM</title>
+    <meta name="title" content="NPquantumtech - Complete IT Solutions | Web Development, App Development & CRM" />
+    <meta name="description" content="NPquantumtech delivers professional IT solutions including web development, mobile app development, e-commerce, CRM implementation, and cloud services. Transform your business with cutting-edge technology." />
+    <meta name="keywords" content="IT solutions, web development, mobile app development, e-commerce solutions, CRM implementation, cloud services, software development, digital transformation, NPquantumtech, Chhatrapati Sambhajinagar" />
+    <meta name="author" content="NPquantumtech" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />  
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://npquantumtech.com/" />
+    <meta property="og:title" content="NPquantumtech - Complete IT Solutions" />
+    <meta property="og:description" content="Transform your business with professional IT solutions. Web development, mobile apps, e-commerce, CRM, and cloud services." />
+    <meta property="og:image" content="/nplogo.png" />
+    <meta property="og:site_name" content="NPquantumtech" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://npquantumtech.com/" />
+    <meta property="twitter:title" content="NPquantumtech - Complete IT Solutions" />
+    <meta property="twitter:description" content="Transform your business with professional IT solutions. Web development, mobile apps, e-commerce, CRM, and cloud services." />
+    <meta property="twitter:image" content="/nplogo.png" />
+    
+    <!-- Theme and App Settings -->
+    <meta name="theme-color" content="#0F1419" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NPquantumtech" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/png" href="/nplogo.png" />
+    <link rel="apple-touch-icon" href="/nplogo.png" />
+    <link rel="shortcut icon" href="/nplogo.png" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://npquantumtech.com/" />
+    
+    <!-- DNS Prefetch and Preconnect for Performance -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="/nplogo.png" as="image" type="image/png" />
+    
+    <!-- Fonts with font-display swap for instant text rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "NPquantumtech",
+      "url": "https://npquantumtech.com",
+      "logo": "https://npquantumtech.com/nplogo.png",
+      "description": "Professional IT solutions provider specializing in web development, mobile app development, e-commerce, CRM implementation, and cloud services.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Gyanpeeth - Campus II, T18, STPI, Naregaon - Malharpur - Warud Rd",
+        "addressLocality": "Chhatrapati Sambhajinagar",
+        "addressRegion": "Maharashtra",
+        "postalCode": "431008",
+        "addressCountry": "IN"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-9922284137",
+        "contactType": "Customer Service",
+        "email": "hello@npquantumtech.com",
+        "availableLanguage": ["English", "Hindi"]
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/npquantumtech",
+        "https://twitter.com/npquantumtech",
+        "https://www.facebook.com/npquantumtech"
+      ],
+      "foundingDate": "2017",
+      "numberOfEmployees": {
+        "@type": "QuantitativeValue",
+        "minValue": 100,
+        "maxValue": 500
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "serviceType": [
+        "Web Development",
+        "Mobile App Development",
+        "E-Commerce Solutions",
+        "CRM Implementation",
+        "Cloud Services",
+        "Software Development",
+        "Digital Transformation"
+      ]
+    }
+    </script>
+    
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration for Caching (Optional) -->
+    <script>
+      // Register service worker for offline support (optional)
+      if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
