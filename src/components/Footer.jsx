@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import bravoCareersLogo from '../assets/bravo-careers-global-travel-badge.png';
 
 export default function Footer() {
   return (
@@ -8,16 +9,16 @@ export default function Footer() {
         <div className="bravo-footer-main">
           <div>
             <Link to="/" className="bravo-brand bravo-footer-brand">
-              <span className="bravo-brand-mark">B<span>C</span></span>
-              <span className="bravo-brand-name">BRAVO <b>CAREERS</b><small>YOUR UK JOURNEY, WELL GUIDED</small></span>
+              <img className="bravo-brand-logo" src={bravoCareersLogo} alt="Bravo Careers — Trusted Guidance. Global Possibilities." />
             </Link>
             <p>Trusted guidance. Global possibilities.<br />UK career and founder support, with honesty at every step.</p>
           </div>
           <div className="bravo-footer-links">
             <h3>Explore</h3>
-            <a href="/#about">Our approach</a>
+            <a href="/#about">About us</a>
             <a href="/#services">Services</a>
-            <a href="/#pricing">Pricing</a>
+            <a href="/#testimonials">Testimonials</a>
+            <a href="/#news">News</a>
             <a href="/#faqs">FAQs</a>
           </div>
           <div className="bravo-footer-links">

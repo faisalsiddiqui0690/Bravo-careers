@@ -1,9 +1,23 @@
-import { useState } from 'react';
-import { ArrowDown, ArrowRight, Check, ChevronDown, Compass, FileText, Globe2, ShieldCheck, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowDown, ArrowRight, Check, ChevronDown, FileText, Globe2, Sparkles } from 'lucide-react';
+import { getAnalytics, getReviews, IMAGE_BASE } from '../services/api';
+import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
+import skilledWorkerImage from '../assets/bravo-skilled-worker.svg';
+import founderSupportImage from '../assets/bravo-founder-support.svg';
+import careerServicesImage from '../assets/bravo-career-services.svg';
+import jobSearchImage from '../assets/bravo-skilled-worker.svg';
+import cvGuidanceImage from '../assets/bravo-career-services.svg';
+import founderIdeasImage from '../assets/bravo-founder-support.svg';
+import visaNewsImage from '../assets/bravo-visa-news.svg';
+import jobsNewsImage from '../assets/bravo-jobs-news.svg';
+import founderNewsImage from '../assets/bravo-founder-news.svg';
+import testimonialAvatar from '../assets/bravo-testimonial-avatar.svg';
 
 const services = [
   {
     number: '01',
+    image: skilledWorkerImage,
+    imageAlt: 'Illustration of a UK city and a career route',
     title: 'UK Skilled Worker guidance',
     description: 'Build a practical job-search plan, understand sponsorship requirements and prepare a stronger application.',
     icon: Globe2,
@@ -11,6 +25,8 @@ const services = [
   },
   {
     number: '02',
+    image: founderSupportImage,
+    imageAlt: 'Illustration of a founder planning a new business',
     title: 'Innovator Founder support',
     description: 'Get structured help to assess your idea, understand endorsement expectations and prepare your business plan.',
     icon: Sparkles,
@@ -18,6 +34,8 @@ const services = [
   },
   {
     number: '03',
+    image: careerServicesImage,
+    imageAlt: 'Illustration of a CV and career planning',
     title: 'Career services',
     description: 'Present your experience clearly and take your next steps with focused, one-to-one career support.',
     icon: FileText,
@@ -44,26 +62,107 @@ const faqs = [
   },
 ];
 
-const Price = ({ children, detail }) => (
-  <span className="bravo-price">
-    <strong>{children}</strong>
-    {detail && <small>{detail}</small>}
-  </span>
+const blogArticles = [
+  {
+    category: 'Career planning',
+    image: jobSearchImage,
+    imageAlt: 'Illustrated route map for planning a UK job search',
+    title: 'Build a focused UK job-search plan',
+    description: 'Choose roles that fit your experience, check sponsorship requirements early and make each application purposeful.',
+    link: '#services',
+    linkLabel: 'Explore career support',
+  },
+  {
+    category: 'CV & interviews',
+    image: cvGuidanceImage,
+    imageAlt: 'Illustration of a CV with highlighted experience',
+    title: 'Make your experience easy to understand',
+    description: 'Show the impact of your work with clear examples, relevant skills and a CV tailored to the role.',
+    link: '#services',
+    linkLabel: 'Get CV guidance',
+  },
+  {
+    category: 'Founder support',
+    image: founderIdeasImage,
+    imageAlt: 'Illustration of a founder developing an idea',
+    title: 'Test your business idea before you invest',
+    description: 'Pressure-test the problem, customer need and growth potential before committing to a business plan.',
+    link: '#services',
+    linkLabel: 'Explore founder support',
+  },
+];
+
+const officialUpdates = [
+  {
+    category: 'Skilled Worker route',
+    image: visaNewsImage,
+    imageAlt: 'Illustration of UK route guidance documents',
+    title: 'Check the latest visa requirements',
+    description: 'Review the official eligibility, salary and application guidance before making plans.',
+    link: 'https://www.gov.uk/skilled-worker-visa',
+  },
+  {
+    category: 'UK job search',
+    image: jobsNewsImage,
+    imageAlt: 'Illustration of job opportunities in London',
+    title: 'Search current UK vacancies',
+    description: 'Use the government job service to explore roles and prepare your next application.',
+    link: 'https://www.gov.uk/find-a-job',
+  },
+  {
+    category: 'Innovator Founder route',
+    image: founderNewsImage,
+    imageAlt: 'Illustration of a business plan and founder route',
+    title: 'Read the official founder visa guidance',
+    description: 'Check the current rules and endorsement information directly with GOV.UK.',
+    link: 'https://www.gov.uk/innovator-founder-visa',
+  },
+];
+
+const AutoScrollRail = ({ children, label }) => (
+  <div className="bravo-rail-window" role="region" aria-label={label}>
+    <div className="bravo-rail-track">
+      <div className="bravo-rail-group">{children}</div>
+      <div className="bravo-rail-group" aria-hidden="true" inert="">
+        {children}
+      </div>
+    </div>
+  </div>
 );
 
 export default function BravoWebsite() {
   const [openFaq, setOpenFaq] = useState(0);
   const [newsletterStatus, setNewsletterStatus] = useState('');
+  const [analytics, setAnalytics] = useState(null);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    getAnalytics().then(setAnalytics);
+    getReviews().then((data) => {
+      if (Array.isArray(data)) {
+        setReviews(data.filter((review) => review?.name && review?.comment));
+      }
+    });
+  }, []);
 
   const handleNewsletterSubmit = (event) => {
     event.preventDefault();
     setNewsletterStatus('Newsletter sign-up is not connected yet. Follow @bravocareers for updates while we set it up.');
   };
 
+  const ratings = reviews
+    .map((review) => Number(review.rating))
+    .filter((rating) => Number.isFinite(rating) && rating > 0);
+  const averageRating = ratings.length
+    ? `${(ratings.reduce((total, rating) => total + rating, 0) / ratings.length).toFixed(1)}/5`
+    : '—';
+
   return (
     <main className="bravo-site">
       <section className="bravo-hero" id="home">
-        <div className="bravo-hero-orb" aria-hidden="true" />
+        <div className="bravo-hero-art">
+          <img src={ukJourneyImage} alt="" />
+        </div>
         <div className="bravo-container bravo-hero-grid">
           <div className="bravo-hero-copy">
             <div className="bravo-eyebrow"><span /> A clearer route to your UK future</div>
@@ -80,24 +179,6 @@ export default function BravoWebsite() {
             </div>
           </div>
 
-          <div className="bravo-hero-card" aria-label="A preview of Bravo Careers guidance">
-            <div className="bravo-card-topline">
-              <div className="bravo-card-mark">B<span>C</span></div>
-              <div><small>YOUR UK JOURNEY</small><strong>One clear step at a time.</strong></div>
-              <span className="bravo-card-status"><i /> GUIDE</span>
-            </div>
-            <div className="bravo-route-visual">
-              <div className="bravo-route-line" />
-              <div className="bravo-route-step bravo-route-step-one"><span>01</span><div><small>START WITH</small><strong>Your situation</strong></div></div>
-              <div className="bravo-route-step bravo-route-step-two"><span>02</span><div><small>FIND YOUR</small><strong>Best-fit route</strong></div></div>
-              <div className="bravo-route-step bravo-route-step-three"><span>03</span><div><small>MAKE A</small><strong>Practical plan</strong></div></div>
-              <div className="bravo-route-compass"><Compass size={27} strokeWidth={1.7} /></div>
-            </div>
-            <div className="bravo-card-foot">
-              <ShieldCheck size={17} />
-              <span>Guidance that is clear, considered and built around you.</span>
-            </div>
-          </div>
         </div>
         <div className="bravo-hero-bottom">
           <div className="bravo-container bravo-hero-bottom-inner">
@@ -110,7 +191,7 @@ export default function BravoWebsite() {
       <section className="bravo-intro bravo-section" id="about">
         <div className="bravo-container bravo-intro-grid">
           <div>
-            <p className="bravo-kicker">A PARTNER FOR THE JOURNEY</p>
+            <p className="bravo-kicker">ABOUT BRAVO CAREERS</p>
             <h2>Good decisions start with <span>honest guidance.</span></h2>
           </div>
           <div className="bravo-intro-copy">
@@ -128,16 +209,86 @@ export default function BravoWebsite() {
             <p>Choose the support that fits your goals today. We will help you understand the next step before you commit.</p>
           </div>
           <div className="bravo-service-grid">
-            {services.map(({ number, title, description, icon: Icon, points }) => (
+            {services.map(({ number, title, description, icon: Icon, points, image, imageAlt }) => (
               <article className="bravo-service-card" key={number}>
-                <div className="bravo-service-card-top"><span>{number}</span><Icon size={22} strokeWidth={1.8} /></div>
+                <div className="bravo-service-image">
+                  <img src={image} alt={imageAlt} />
+                  <span className="bravo-service-number">{number}</span>
+                  <span className="bravo-service-icon"><Icon size={21} strokeWidth={1.8} /></span>
+                </div>
                 <h3>{title}</h3>
                 <p>{description}</p>
                 <ul>{points.map((point) => <li key={point}><Check size={15} />{point}</li>)}</ul>
-                <a href="#pricing" className="bravo-inline-link">See related support <ArrowRight size={15} /></a>
+                <a href="#contact" className="bravo-inline-link">Talk to us about this <ArrowRight size={15} /></a>
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="bravo-testimonials bravo-section" id="testimonials">
+        <div className="bravo-container">
+          <div className="bravo-section-heading">
+            <div><p className="bravo-kicker">CLIENT EXPERIENCES</p><h2>Support that starts <span>with you.</span></h2></div>
+            <p>Read feedback shared by people who have worked with Bravo Careers.</p>
+          </div>
+          {reviews.length ? (
+            <AutoScrollRail label="Client testimonials">
+              {reviews.map((review, index) => {
+                const rating = Math.min(5, Math.max(0, Math.round(Number(review.rating) || 0)));
+                return (
+                  <article className="bravo-testimonial-card" key={review.id || `${review.name}-${index}`}>
+                    <div className="bravo-testimonial-visual">
+                      {review.image ? (
+                        <img
+                          src={review.image.startsWith('/uploads') ? `${IMAGE_BASE}${review.image}` : review.image}
+                          alt={`${review.name}`}
+                          onError={(event) => {
+                            event.currentTarget.src = testimonialAvatar;
+                            event.currentTarget.alt = '';
+                          }}
+                        />
+                      ) : (
+                        <img src={testimonialAvatar} alt="" />
+                      )}
+                    </div>
+                    <div className="bravo-testimonial-stars" aria-label={`${rating} out of 5 stars`}>
+                      {'★'.repeat(rating)}<span>{'★'.repeat(5 - rating)}</span>
+                    </div>
+                    <blockquote>{review.comment}</blockquote>
+                    <div className="bravo-testimonial-author">
+                      <strong>{review.name}</strong>
+                      {review.role && <span>{review.role}</span>}
+                    </div>
+                  </article>
+                );
+              })}
+            </AutoScrollRail>
+          ) : (
+            <p className="bravo-empty-testimonials">Client testimonials will appear here as soon as they are available.</p>
+          )}
+        </div>
+      </section>
+
+      <section className="bravo-news bravo-section" id="news">
+        <div className="bravo-container">
+          <div className="bravo-section-heading">
+            <div><p className="bravo-kicker">OFFICIAL SOURCES</p><h2>UK route updates <span>& resources.</span></h2></div>
+            <p>Check current requirements and opportunities directly with official government services.</p>
+          </div>
+          <AutoScrollRail label="UK career and founder resources">
+            {officialUpdates.map((update) => (
+              <a className="bravo-story-card bravo-news-card" href={update.link} key={update.title} target="_blank" rel="noreferrer">
+                <img className="bravo-story-image" src={update.image} alt={update.imageAlt} />
+                <div className="bravo-story-copy">
+                  <span className="bravo-story-category">{update.category}</span>
+                  <h3>{update.title}</h3>
+                  <p>{update.description}</p>
+                  <span className="bravo-story-link">Read official guidance <ArrowRight size={15} /></span>
+                </div>
+              </a>
+            ))}
+          </AutoScrollRail>
         </div>
       </section>
 
@@ -165,67 +316,25 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-pricing bravo-section" id="pricing">
+      <section className="bravo-editorial bravo-section" id="insights">
         <div className="bravo-container">
-          <div className="bravo-section-heading bravo-pricing-heading">
-            <div><p className="bravo-kicker">SERVICES & PRICING GUIDE · 2026</p><h2>Clear prices. <span>No surprises.</span></h2></div>
-            <p>All prices are in GBP. Begin with a free 15-minute call before deciding what is right for you.</p>
+          <div className="bravo-section-heading">
+            <div><p className="bravo-kicker">PRACTICAL GUIDANCE</p><h2>Ideas for your <span>next step.</span></h2></div>
+            <p>Short, useful reads for your UK career or founder journey.</p>
           </div>
-
-          <div className="bravo-free-call">
-            <div><span className="bravo-free-label">FREE · NO OBLIGATION</span><h3>15-minute clarity call</h3><p>Tell us your situation. We will honestly explain what you need—and whether you need us at all.</p></div>
-            <a href="#contact" className="bravo-button bravo-button-yellow">Book a call <ArrowRight size={16} /></a>
-          </div>
-
-          <div className="bravo-price-section">
-            <div className="bravo-price-title"><span>01</span><h3>Bravo Pass</h3><p>Membership for your UK sponsored job search</p></div>
-            <article className="bravo-pass-card">
-              <div className="bravo-pass-copy">
-                <div className="bravo-plan-heading"><h4>Bravo Pass</h4><span>MOST POPULAR</span></div>
-                <ul>
-                  <li><Check size={15} />Jobs from sponsor-licensed UK employers, curated every week</li>
-                  <li><Check size={15} />Each job checked against the Skilled Worker salary rule</li>
-                  <li><Check size={15} />Job alerts on WhatsApp</li>
-                  <li><Check size={15} />Recruiter scripts, cold emails and interview answer library</li>
-                </ul>
-              </div>
-              <Price detail="per month">£5.99</Price>
-              <div className="bravo-year-price"><strong>£49</strong><span>per year · save 32%</span></div>
-            </article>
-          </div>
-
-          <div className="bravo-price-section">
-            <div className="bravo-price-title"><span>02</span><h3>Handbooks</h3><p>Instant PDF download</p></div>
-            <div className="bravo-handbook-grid">
-              <article className="bravo-handbook-card"><div><h4>UK Sponsored Job Handbook</h4><p>The 18-month plan, salary rules, sponsor lists, CV and recruiter scripts.</p></div><Price>£9.99</Price></article>
-              <article className="bravo-handbook-card"><div><h4>Innovator Founder Handbook</h4><p>How endorsement works, real official costs, red flags and a business-plan checklist.</p></div><Price>£14.99</Price></article>
-              <article className="bravo-handbook-card bravo-bundle-card"><div><div className="bravo-plan-heading"><h4>Handbook Bundle</h4><span>BEST VALUE</span></div><p>Both handbooks together.</p></div><Price>£19.99</Price></article>
-            </div>
-          </div>
-
-          <div className="bravo-price-section">
-            <div className="bravo-price-title"><span>03</span><h3>Career services</h3><p>1:1 help to land interviews</p></div>
-            <div className="bravo-price-list">
-              <div className="bravo-price-row"><div><h4>CV review</h4><p>Detailed written feedback on your CV against UK employer and ATS expectations.</p></div><Price detail="one-time">£19</Price></div>
-              <div className="bravo-price-row"><div><h4>UK CV rewrite + LinkedIn makeover</h4><p>Your CV rebuilt in UK format and your LinkedIn profile optimised for recruiters.</p></div><Price detail="one-time">£69</Price></div>
-              <div className="bravo-price-row"><div><h4>1:1 job strategy call <span>(45 min)</span></h4><p>Target roles, sponsor list, salary rules and your personal 18-month timeline.</p></div><Price detail="per session">£35</Price></div>
-            </div>
-          </div>
-
-          <div className="bravo-price-section">
-            <div className="bravo-price-title"><span>04</span><h3>Innovator Founder support</h3><p>Business-plan guidance</p></div>
-            <div className="bravo-price-list">
-              <div className="bravo-price-row"><div><h4>Business-plan readiness review</h4><p>An honest review of your idea and plan against the endorsement criteria: innovative, viable and scalable. You leave knowing your gaps.</p></div><Price detail="per review">£59</Price></div>
-              <div className="bravo-price-row"><div><h4>Business-plan coaching</h4><p>Step-by-step coaching to strengthen your plan and prepare for the endorsement interview.</p></div><Price detail="after free call">On quote</Price></div>
-            </div>
-          </div>
-
-          <aside className="bravo-promise">
-            <div><p className="bravo-kicker">OUR PROMISE</p><h3>We will tell you not to pay us if:</h3><ol><li>Your business plan is not ready yet.</li><li>It is the wrong route for your profile.</li><li>You can do it yourself. You will get our free guide instead.</li></ol></div>
-            <span className="bravo-no-stamp">NO.</span>
-          </aside>
-
-          <p className="bravo-pricing-note">Government fees, the Immigration Health Surcharge, endorsement fees and other third-party costs are not included. Rules and fees can change; check <a href="https://www.gov.uk/" target="_blank" rel="noreferrer">GOV.UK</a> for current official information.</p>
+          <AutoScrollRail label="Career and founder articles">
+            {blogArticles.map((article) => (
+              <a className="bravo-story-card" href={article.link} key={article.title}>
+                <img className="bravo-story-image" src={article.image} alt={article.imageAlt} />
+                <div className="bravo-story-copy">
+                  <span className="bravo-story-category">{article.category}</span>
+                  <h3>{article.title}</h3>
+                  <p>{article.description}</p>
+                  <span className="bravo-story-link">{article.linkLabel} <ArrowRight size={15} /></span>
+                </div>
+              </a>
+            ))}
+          </AutoScrollRail>
         </div>
       </section>
 
@@ -280,6 +389,14 @@ export default function BravoWebsite() {
           <p>Bravo Careers provides career, job-search and business-plan guidance. We are not a law firm and do not give regulated UK immigration advice. Where immigration advice or a visa application is needed, we refer you to an appropriately regulated adviser.</p>
           <p>No job offer, endorsement, visa or other outcome can be guaranteed. Decisions are made by employers, endorsing bodies and the UK Home Office.</p>
           <p>Prices are in GBP and include payment processing. Government fees, the Immigration Health Surcharge, endorsement fees and other third-party costs are not included.</p>
+        </div>
+      </section>
+
+      <section className="bravo-proof" aria-label="Bravo Careers at a glance">
+        <div className="bravo-container bravo-proof-grid">
+          <div><strong>{analytics?.clientsCount || '—'}</strong><span>Clients supported</span></div>
+          <div><strong>5+</strong><span>Years of experience</span></div>
+          <div><strong>{averageRating}</strong><span>Average client rating</span></div>
         </div>
       </section>
     </main>
