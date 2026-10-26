@@ -1,0 +1,58 @@
+import { FileText, Globe2, Sparkles } from 'lucide-react';
+
+export const services = [
+  {
+    number: '01',
+    slug: 'skilled-worker',
+    image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'London skyline and the River Thames',
+    title: 'UK Skilled Worker guidance',
+    description: 'Build a practical job-search plan, understand sponsorship requirements and prepare a stronger application.',
+    icon: Globe2,
+    points: ['Sponsor-aware job search', 'UK CV and interview guidance', 'Salary and role checks'],
+    detailIntro: 'A clearer, more focused approach to finding UK roles that align with your experience and goals.',
+    detailDescription: 'We help you structure your search, prepare stronger applications and understand the questions to check before you invest time in a role. Our support is career-focused and does not replace regulated immigration advice.',
+    outcomes: [
+      'Identify roles and employers that match your background',
+      'Understand where sponsorship information can be checked',
+      'Improve your UK CV and interview preparation',
+      'Plan your next steps with practical, honest guidance',
+    ],
+  },
+  {
+    number: '02',
+    slug: 'innovator-founder',
+    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Founders working together around a table',
+    title: 'Innovator Founder support',
+    description: 'Get structured help to assess your idea, understand endorsement expectations and prepare your business plan.',
+    icon: Sparkles,
+    points: ['Business-plan readiness review', 'Endorsement criteria guidance', 'Founder strategy sessions'],
+    detailIntro: 'Turn an early-stage business idea into a clearer, evidence-led plan for your next conversation.',
+    detailDescription: 'We help founders pressure-test their idea, articulate its innovation and growth potential, and organise a business plan. Endorsement decisions belong to independent endorsing bodies; we cannot guarantee an endorsement or visa outcome.',
+    outcomes: [
+      'Clarify the problem, customer and value proposition',
+      'Review how your idea communicates innovation and growth',
+      'Structure your business plan and supporting evidence',
+      'Prepare focused questions for your next founder strategy session',
+    ],
+  },
+  {
+    number: '03',
+    slug: 'career-services',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=85',
+    imageAlt: 'Professional reviewing documents and career plans',
+    title: 'Career services',
+    description: 'Present your experience clearly and take your next steps with focused, one-to-one career support.',
+    icon: FileText,
+    points: ['CV review and rewrite', 'LinkedIn profile feedback', 'Personal job-search strategy'],
+    detailIntro: 'Make your experience easier to understand and your next career move easier to plan.',
+    detailDescription: 'Get practical, one-to-one support to position your strengths, improve your professional profile and build a job-search routine that fits your goals.',
+    outcomes: [
+      'Present your skills and achievements with clarity',
+      'Get actionable feedback on your CV and LinkedIn profile',
+      'Create a focused, achievable job-search strategy',
+      'Prepare for interviews with examples that reflect your experience',
+    ],
+  },
+];

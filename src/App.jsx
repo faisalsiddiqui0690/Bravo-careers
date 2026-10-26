@@ -7,6 +7,7 @@ import './index.css';
 
 const BravoWebsite = lazy(() => import('./components/BravoWebsite'));
 const LegalPageView = lazy(() => import('./components/LegalPageView'));
+const BrandedServiceDetailPage = lazy(() => import('./components/BrandedServiceDetailPage'));
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'));
 const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'));
 const AdminProjects = lazy(() => import('./admin/pages/AdminProjects'));
@@ -81,6 +82,13 @@ function App() {
           <Route path="/" element={
             <>
               <BravoWebsite />
+              <Footer />
+              <BackToTop />
+            </>
+          } />
+          <Route path="/services/:slug" element={
+            <>
+              <BrandedServiceDetailPage />
               <Footer />
               <BackToTop />
             </>

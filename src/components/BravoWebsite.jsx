@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowRight, Check, ChevronDown, FileText, Globe2, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowDown, ArrowRight, Check, ChevronDown } from 'lucide-react';
 import { getAnalytics, getReviews, IMAGE_BASE } from '../services/api';
+import { services } from '../data/services';
 import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
 import skilledWorkerImage from '../assets/bravo-skilled-worker.svg';
 import founderSupportImage from '../assets/bravo-founder-support.svg';
@@ -12,36 +14,6 @@ import visaNewsImage from '../assets/bravo-visa-news.svg';
 import jobsNewsImage from '../assets/bravo-jobs-news.svg';
 import founderNewsImage from '../assets/bravo-founder-news.svg';
 import testimonialAvatar from '../assets/bravo-testimonial-avatar.svg';
-
-const services = [
-  {
-    number: '01',
-    image: skilledWorkerImage,
-    imageAlt: 'Illustration of a UK city and a career route',
-    title: 'UK Skilled Worker guidance',
-    description: 'Build a practical job-search plan, understand sponsorship requirements and prepare a stronger application.',
-    icon: Globe2,
-    points: ['Sponsor-aware job search', 'UK CV and interview guidance', 'Salary and role checks'],
-  },
-  {
-    number: '02',
-    image: founderSupportImage,
-    imageAlt: 'Illustration of a founder planning a new business',
-    title: 'Innovator Founder support',
-    description: 'Get structured help to assess your idea, understand endorsement expectations and prepare your business plan.',
-    icon: Sparkles,
-    points: ['Business-plan readiness review', 'Endorsement criteria guidance', 'Founder strategy sessions'],
-  },
-  {
-    number: '03',
-    image: careerServicesImage,
-    imageAlt: 'Illustration of a CV and career planning',
-    title: 'Career services',
-    description: 'Present your experience clearly and take your next steps with focused, one-to-one career support.',
-    icon: FileText,
-    points: ['CV review and rewrite', 'LinkedIn profile feedback', 'Personal job-search strategy'],
-  },
-];
 
 const faqs = [
   {
@@ -130,6 +102,60 @@ const AutoScrollRail = ({ children, label }) => (
   </div>
 );
 
+function AnimatedMetric({ value, suffix = '', decimals = 0, label }) {
+  const metricRef = useRef(null);
+  const [count, setCount] = useState(0);
+  const target = Number.isFinite(value) ? value : null;
+
+  useEffect(() => {
+    if (target === null) return undefined;
+
+    const element = metricRef.current;
+    if (!element) return undefined;
+
+    let frameId;
+    let observer;
+    const animate = () => {
+      const duration = 1400;
+      const startTime = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const easedProgress = 1 - (1 - progress) ** 4;
+        setCount(target * easedProgress);
+        if (progress < 1) frameId = requestAnimationFrame(tick);
+      };
+      frameId = requestAnimationFrame(tick);
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCount(target);
+      return undefined;
+    }
+
+    observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        observer.disconnect();
+        animate();
+      }
+    }, { threshold: 0.45 });
+    observer.observe(element);
+
+    return () => {
+      observer?.disconnect();
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [target]);
+
+  return (
+    <div ref={metricRef} className="flex min-h-40 flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-5 py-8 text-center shadow-sm shadow-slate-900/5">
+      <strong className="font-display text-5xl font-bold tracking-tight text-[#08234f] sm:text-6xl">
+        {target === null ? '—' : `${count.toFixed(decimals)}${suffix}`}
+      </strong>
+      <span className="mt-3 text-sm font-semibold tracking-wide text-slate-600">{label}</span>
+    </div>
+  );
+}
+
 export default function BravoWebsite() {
   const [openFaq, setOpenFaq] = useState(0);
   const [newsletterStatus, setNewsletterStatus] = useState('');
@@ -202,24 +228,47 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-services bravo-section" id="services">
-        <div className="bravo-container">
-          <div className="bravo-section-heading">
-            <div><p className="bravo-kicker">HOW WE CAN HELP</p><h2>Three routes. <span>One trusted partner.</span></h2></div>
-            <p>Choose the support that fits your goals today. We will help you understand the next step before you commit.</p>
+      <section className="bg-slate-50 py-20 sm:py-24" id="services">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="mb-10 flex flex-col gap-5 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">How we can help</p>
+              <h2 className="text-4xl font-bold leading-tight tracking-tight text-[#08234f] sm:text-5xl">
+                Three routes. <span className="text-amber-600">One trusted partner.</span>
+              </h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+                Our expertise spans UK career planning, founder readiness and practical one-to-one support—so you can choose a route that fits your next step.
+              </p>
+            </div>
+            <p className="max-w-md text-sm leading-7 text-slate-600">
+              Explore each service to see what is included. We will help you understand your options before you commit.
+            </p>
           </div>
-          <div className="bravo-service-grid">
-            {services.map(({ number, title, description, icon: Icon, points, image, imageAlt }) => (
-              <article className="bravo-service-card" key={number}>
-                <div className="bravo-service-image">
-                  <img src={image} alt={imageAlt} />
-                  <span className="bravo-service-number">{number}</span>
-                  <span className="bravo-service-icon"><Icon size={21} strokeWidth={1.8} /></span>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {services.map(({ number, slug, title, description, icon: Icon, points, image, imageAlt }) => (
+              <article key={number} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-slate-900/10">
+                <Link to={`/services/${slug}`} className="relative block h-56 overflow-hidden bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-amber-400" aria-label={`Explore ${title}`}>
+                  <img className="h-full w-full object-cover transition duration-500 group-hover:scale-105" src={image} alt={imageAlt} loading="lazy" />
+                  <span className="absolute left-5 top-5 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-[#08234f]/90 text-xs font-bold text-amber-300 shadow-lg">{number}</span>
+                  <span className="absolute bottom-4 right-4 grid h-12 w-12 place-items-center rounded-full border-4 border-white bg-amber-300 text-[#08234f] shadow-lg">
+                    <Icon size={21} strokeWidth={1.8} />
+                  </span>
+                </Link>
+                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                  <h3 className="text-xl font-bold tracking-tight text-[#08234f]">{title}</h3>
+                  <p className="mt-3 min-h-[4.5rem] text-sm leading-7 text-slate-600">{description}</p>
+                  <ul className="mb-6 mt-5 grid gap-3">
+                    {points.map((point) => (
+                      <li key={point} className="flex items-start gap-2.5 text-sm text-slate-700">
+                        <Check className="mt-0.5 shrink-0 text-emerald-700" size={17} />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to={`/services/${slug}`} className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-blue-800 transition hover:gap-3 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-4">
+                    Explore this service <ArrowRight size={16} />
+                  </Link>
                 </div>
-                <h3>{title}</h3>
-                <p>{description}</p>
-                <ul>{points.map((point) => <li key={point}><Check size={15} />{point}</li>)}</ul>
-                <a href="#contact" className="bravo-inline-link">Talk to us about this <ArrowRight size={15} /></a>
               </article>
             ))}
           </div>
@@ -392,11 +441,17 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-proof" aria-label="Bravo Careers at a glance">
-        <div className="bravo-container bravo-proof-grid">
-          <div><strong>{analytics?.clientsCount || '—'}</strong><span>Clients supported</span></div>
-          <div><strong>5+</strong><span>Years of experience</span></div>
-          <div><strong>{averageRating}</strong><span>Average client rating</span></div>
+      <section className="bg-slate-100 py-16 sm:py-20" aria-label="Bravo Careers at a glance">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">A track record built on trust</p>
+            <h2 className="text-3xl font-bold tracking-tight text-[#08234f] sm:text-4xl">Support you can measure.</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+            <AnimatedMetric value={Number.parseFloat(analytics?.clientsCount)} suffix={String(analytics?.clientsCount || '').replace(/^[\d,.]+/, '')} label="Clients supported" />
+            <AnimatedMetric value={5} suffix="+" label="Years of experience" />
+            <AnimatedMetric value={ratings.length ? Number(averageRating.split('/')[0]) : null} suffix={ratings.length ? '/5' : ''} decimals={1} label="Average client rating" />
+          </div>
         </div>
       </section>
     </main>
