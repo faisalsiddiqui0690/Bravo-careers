@@ -1,7 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '../hooks/useAdminAuth';
-import { useState, useEffect } from 'react';
-import logo from '../../assets/nplogo.png';
 
 const icons = {
   dashboard: (
@@ -10,11 +8,6 @@ const icons = {
       <rect x="14" y="3" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
-  ),
-  projects: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-      <path d="M3 7a2 2 0 0 1 2-2h3.17a2 2 0 0 1 1.42.59l1.41 1.41A2 2 0 0 0 12.41 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
     </svg>
   ),
   services: (
@@ -27,17 +20,22 @@ const icons = {
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   ),
+  blogs: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+      <path d="M4 4h16v16H4z" /><path d="M8 8h8M8 12h8M8 16h5" />
+    </svg>
+  ),
+  news: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+      <path d="M4 4h16v16H4z" /><path d="M8 8h8M8 12h5M8 16h8" /><circle cx="16" cy="12" r="1" />
+    </svg>
+  ),
   management: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  ),
-  analytics: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
     </svg>
   ),
   careers: (
@@ -65,13 +63,13 @@ const icons = {
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: icons.dashboard, path: '/admin/dashboard' },
-  { id: 'projects',  label: 'Projects',  icon: icons.projects,  path: '/admin/projects' },
   { id: 'services',  label: 'Services',  icon: icons.services,  path: '/admin/services' },
-  { id: 'reviews',   label: 'Reviews',   icon: icons.reviews,   path: '/admin/reviews' },
+  { id: 'blogs', label: 'Blogs', icon: icons.blogs, path: '/admin/blogs' },
+  { id: 'news', label: 'News', icon: icons.news, path: '/admin/news' },
+  { id: 'reviews',   label: 'Testimonials',   icon: icons.reviews,   path: '/admin/reviews' },
   { id: 'careers',   label: 'Careers',   icon: icons.careers,   path: '/admin/careers' },
   { id: 'enquiries', label: 'Enquiries', icon: icons.enquiries, path: '/admin/enquiries' },
   { id: 'legal-pages', label: 'Legal Pages', icon: icons.legalPages, path: '/admin/legal-pages' },
-  { id: 'analytics', label: 'Analytics', icon: icons.analytics, path: '/admin/analytics' },
   { id: 'admin-management', label: 'Admin Management', icon: icons.management, path: '/admin/management', superAdminOnly: true },
   { id: 'settings',  label: 'Settings',  icon: icons.settings,  path: '/admin/settings' },
 ];
@@ -80,19 +78,6 @@ const AdminSidebar = ({ isSidebarOpen, onToggleSidebar, isMobile }) => {
   const location = useLocation();
   const { user } = useAdminAuth();
   const isActive = (path) => location.pathname === path;
-
-  // Watch the <html> class directly so the logo colour updates instantly on toggle
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <>
@@ -117,17 +102,7 @@ const AdminSidebar = ({ isSidebarOpen, onToggleSidebar, isMobile }) => {
         <div className={`flex items-center h-14 border-b border-gray-200 dark:border-gray-700 px-3 flex-shrink-0 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen && (
             <Link to="/admin/dashboard" className="flex items-center no-underline overflow-hidden">
-              <img 
-                src={logo} 
-                alt="NPquantumtech" 
-                className="h-14 w-auto object-contain transition-all"
-                style={{
-                  filter: isDark 
-                    ? 'brightness(0) invert(1) contrast(1.5) saturate(1.3)' 
-                    : 'brightness(0.3) contrast(2) saturate(1.5) opacity(1)',
-                  maxWidth: '200px'
-                }}
-              />
+              <span className="text-lg font-extrabold tracking-tight text-[#08234f] dark:text-white">Bravo <span className="text-amber-500">Careers</span></span>
             </Link>
           )}
           <button
@@ -182,7 +157,7 @@ const AdminSidebar = ({ isSidebarOpen, onToggleSidebar, isMobile }) => {
                 <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
                   {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Admin'}
                 </p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{user?.email || 'admin@iptechnology.com'}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{user?.email || 'admin@bravocareers.co.uk'}</p>
               </div>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 flex-shrink-0">
                 <polyline points="9 18 15 12 9 6" />

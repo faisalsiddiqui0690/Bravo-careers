@@ -42,35 +42,9 @@ const request = async (url, options = {}) => {
 };
 
 const api = {
-  // Projects
-  async getProjects() {
-    const json = await request('/projects');
-    return json?.success ? json.data : [];
-  },
-
-  async createProject(data) {
-    return await request('/projects', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  async updateProject(id, data) {
-    return await request(`/projects/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  },
-
-  async deleteProject(id) {
-    return await request(`/projects/${id}`, {
-      method: 'DELETE',
-    });
-  },
-
   // Services
   async getServices() {
-    const json = await request('/services');
+    const json = await request('/services/admin/all');
     return json?.success ? json.data : [];
   },
 
@@ -96,7 +70,7 @@ const api = {
 
   // Reviews
   async getReviews() {
-    const json = await request('/reviews');
+    const json = await request('/reviews/admin/all');
     return json?.success ? json.data : [];
   },
 
@@ -118,6 +92,41 @@ const api = {
     return await request(`/reviews/${id}`, {
       method: 'DELETE',
     });
+  },
+
+  // Blogs and news
+  async getBlogs() {
+    const json = await request('/blogs/admin/all');
+    return json?.success ? json.data : [];
+  },
+
+  async createBlog(data) {
+    return await request('/blogs', { method: 'POST', body: JSON.stringify(data) });
+  },
+
+  async updateBlog(id, data) {
+    return await request(`/blogs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  },
+
+  async deleteBlog(id) {
+    return await request(`/blogs/${id}`, { method: 'DELETE' });
+  },
+
+  async getNews() {
+    const json = await request('/news/admin/all');
+    return json?.success ? json.data : [];
+  },
+
+  async createNews(data) {
+    return await request('/news', { method: 'POST', body: JSON.stringify(data) });
+  },
+
+  async updateNews(id, data) {
+    return await request(`/news/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  },
+
+  async deleteNews(id) {
+    return await request(`/news/${id}`, { method: 'DELETE' });
   },
 
   // Careers
@@ -165,19 +174,6 @@ const api = {
     });
   },
 
-  // Analytics
-  async getAnalytics() {
-    const json = await request('/analytics');
-    return json?.success ? json.data : null;
-  },
-
-  async updateAnalytics(data) {
-    return await request('/analytics', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  },
-
   // Profile & Auth
   async updateProfile(data) {
     return await request('/v1/admin/auth/update-profile', {
@@ -221,20 +217,6 @@ const api = {
   },
 
   // Uploads
-  async uploadProjectImage(formData) {
-    return await request('/projects/upload', {
-      method: 'POST',
-      body: formData,
-    });
-  },
-
-  async uploadProjectImages(formData) {
-    return await request('/projects/upload-multiple', {
-      method: 'POST',
-      body: formData,
-    });
-  },
-
   async uploadServiceIcon(formData) {
     return await request('/services/upload', {
       method: 'POST',

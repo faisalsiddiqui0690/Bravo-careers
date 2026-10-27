@@ -1,18 +1,10 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-// For Azure Blob Storage images, no IMAGE_BASE needed as URLs are absolute
-export const IMAGE_BASE = ''; // Azure returns full URLs
-
-export const getProjects = async () => {
-  try {
-    const res = await fetch(`${API_BASE}/projects`);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const json = await res.json();
-    return json.success ? json.data : [];
-  } catch (error) {
-    console.error('getProjects error:', error);
-    return [];
-  }
-};
+export const IMAGE_BASE = import.meta.env.VITE_IMAGE_URL || API_BASE.replace(/\/api\/?$/, '');
+export const resolveImageUrl = (image) => (
+  typeof image === 'string' && image.startsWith('/uploads/')
+    ? `${IMAGE_BASE}${image}`
+    : image
+);
 
 export const getServices = async () => {
   try {
@@ -22,7 +14,46 @@ export const getServices = async () => {
     return json.success ? json.data : [];
   } catch (error) {
     console.error('getServices error:', error);
-    return [];
+    throw error;
+  }
+};
+
+export const getBlogs = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/blogs`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const json = await res.json();
+    return json.success ? json.data : [];
+  } catch (error) {
+    console.error('getBlogs error:', error);
+    throw error;
+  }
+};
+
+export const getNews = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/news`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const json = await res.json();
+    return json.success ? json.data : [];
+  } catch (error) {
+    console.error('getNews error:', error);
+    throw error;
+  }
+};
+
+export const getPublishedArticle = async (type, slug) => {
+  try {
+    const collection = type === 'blog' ? 'blogs' : type === 'news' ? 'news' : null;
+    if (!collection) return null;
+    const res = await fetch(`${API_BASE}/${collection}/${encodeURIComponent(slug)}`);
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch (error) {
+    console.error(`getPublishedArticle error [${type}/${slug}]:`, error);
+    return null;
   }
 };
 

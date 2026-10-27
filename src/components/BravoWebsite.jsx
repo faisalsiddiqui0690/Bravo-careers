@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, Check, ChevronDown, Star } from 'lucide-react';
-import { getAnalytics, getReviews, IMAGE_BASE } from '../services/api';
-import { services } from '../data/services';
+import { ArrowDown, ArrowRight, Briefcase, Building2, Check, ChevronDown, Globe2, GraduationCap, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { getBlogs, getNews, getReviews, getServices, resolveImageUrl } from '../services/api';
+import { services as fallbackServices } from '../data/services';
 import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
 import skilledWorkerImage from '../assets/bravo-skilled-worker.svg';
 import founderSupportImage from '../assets/bravo-founder-support.svg';
@@ -168,11 +168,51 @@ export default function BravoWebsite() {
   const [openFaq, setOpenFaq] = useState(0);
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', service: '', message: '' });
   const [contactStatus, setContactStatus] = useState({ loading: false, error: '', success: '' });
-  const [analytics, setAnalytics] = useState(null);
+  const [services, setServices] = useState(fallbackServices);
+  const [blogEntries, setBlogEntries] = useState(blogArticles);
+  const [newsEntries, setNewsEntries] = useState(officialUpdates);
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    getAnalytics().then(setAnalytics);
+    getServices().then((data) => {
+      if (Array.isArray(data)) {
+        const iconMap = { Briefcase, Building2, Globe2, GraduationCap, ShieldCheck, Sparkles };
+        setServices(data.map((service, index) => ({
+          ...service,
+          number: String(index + 1).padStart(2, '0'),
+          icon: iconMap[service.icon] || Briefcase,
+          image: resolveImageUrl(service.image || '') || ukJourneyImage,
+          imageAlt: service.imageAlt || service.title,
+          points: Array.isArray(service.points) ? service.points : [],
+          outcomes: Array.isArray(service.outcomes) ? service.outcomes : [],
+        })));
+      }
+    }).catch((error) => console.error('Falling back to local Bravo services:', error));
+    getBlogs().then((data) => {
+      if (Array.isArray(data) && data.length) {
+        setBlogEntries(data.map((entry) => ({
+          category: entry.category,
+          image: resolveImageUrl(entry.image || '') || jobSearchImage,
+          imageAlt: entry.imageAlt || entry.title,
+          title: entry.title,
+          description: entry.excerpt,
+          link: `/articles/blog/${entry.slug}`,
+          linkLabel: 'Read article',
+        })));
+      }
+    }).catch((error) => console.error('Falling back to local Bravo blog content:', error));
+    getNews().then((data) => {
+      if (Array.isArray(data) && data.length) {
+        setNewsEntries(data.map((entry, index) => ({
+          category: entry.category,
+          image: resolveImageUrl(entry.image || '') || [visaNewsImage, jobsNewsImage, founderNewsImage][index % 3],
+          imageAlt: entry.imageAlt || entry.title,
+          title: entry.title,
+          description: entry.excerpt,
+          link: entry.externalUrl || `/articles/news/${entry.slug}`,
+        })));
+      }
+    }).catch((error) => console.error('Falling back to local Bravo news content:', error));
     getReviews().then((data) => {
       if (Array.isArray(data)) {
         setReviews(data.filter((review) => review?.name && review?.comment));
@@ -331,7 +371,7 @@ export default function BravoWebsite() {
             <div className="max-w-4xl">
               <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">How we can help</p>
               <h2 className="!text-4xl font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
-                Six services. <span className="!text-amber-600">One trusted partner.</span>
+                Practical support. <span className="!text-amber-600">One trusted partner.</span>
               </h2>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
                 From sponsored job searches and UK career preparation to founder and route research, find practical support for your next step.
@@ -342,7 +382,7 @@ export default function BravoWebsite() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-7">
-            {services.map(({ number, slug, title, description, icon: Icon, points, image, imageAlt }) => (
+            {services.map(({ number, slug, title, description, icon: Icon, points = [], image, imageAlt }) => (
               <article key={number} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-slate-900/10">
                 <Link to={`/services/${slug}`} className="relative block h-52 overflow-hidden bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-amber-400 sm:h-60" aria-label={`Explore ${title}`}>
                   <img
@@ -378,6 +418,7 @@ export default function BravoWebsite() {
               </article>
             ))}
           </div>
+          {!services.length && <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">Our services are being updated. Please check back soon.</p>}
         </div>
       </section>
 
@@ -387,11 +428,13 @@ export default function BravoWebsite() {
             <div>
               <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-300">CLIENT EXPERIENCES</p>
               <h2 className="max-w-3xl !text-4xl font-display !font-bold !leading-tight !tracking-tight !text-white sm:!text-5xl">
-                Every journey is different. <span className="!text-amber-300">So is every story.</span>
+                {reviews.length ? <>Every journey is different. <span className="!text-amber-300">So is every story.</span></> : <>A more honest kind of <span className="!text-amber-300">support.</span></>}
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-7 text-slate-300">
-              Explore feedback shared by people who have worked with Bravo Careers. We keep client experiences in their own words.
+              {reviews.length
+                ? 'Explore feedback shared by people who have worked with Bravo Careers. We keep client experiences in their own words.'
+                : 'We only share genuine client feedback when we have permission to publish it.'}
             </p>
           </div>
           {reviews.length ? (
@@ -404,7 +447,7 @@ export default function BravoWebsite() {
                       {review.image ? (
                         <img
                           className="h-full w-full object-cover"
-                          src={review.image.startsWith('/uploads') ? `${IMAGE_BASE}${review.image}` : review.image}
+                          src={resolveImageUrl(review.image)}
                           alt={`${review.name}`}
                           onError={(event) => {
                             event.currentTarget.src = testimonialAvatar;
@@ -428,10 +471,11 @@ export default function BravoWebsite() {
               })}
             </AutoScrollRail>
           ) : (
-            <div className="rounded-2xl border border-white/15 bg-white/5 px-6 py-10 text-center sm:px-10">
-              <p className="text-lg font-semibold text-white">Client stories will appear here.</p>
+            <div className="mx-auto max-w-3xl rounded-2xl border border-white/15 bg-white/[0.06] px-6 py-10 text-center sm:px-10">
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-300/15 text-amber-300"><Star size={25} /></span>
+              <p className="mt-5 text-lg font-semibold text-white">Client feedback is being prepared.</p>
               <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-300">
-                We share client feedback when it is available, so you can hear directly about people’s experiences with our support.
+                Genuine testimonials will appear here once they have been added and approved for publication. We do not use placeholder names or invented reviews.
               </p>
             </div>
           )}
@@ -444,19 +488,19 @@ export default function BravoWebsite() {
             <div><p className="bravo-kicker">OFFICIAL SOURCES</p><h2>UK route updates <span>& resources.</span></h2></div>
             <p>Check current requirements and opportunities directly with official government services.</p>
           </div>
-          <AutoScrollRail label="UK career and founder resources">
-            {officialUpdates.map((update) => (
-              <a className="bravo-story-card bravo-news-card" href={update.link} key={update.title} target="_blank" rel="noreferrer">
+          {newsEntries.length ? <AutoScrollRail label="UK career and founder resources">
+            {newsEntries.map((update) => (
+              <a className="bravo-story-card bravo-news-card" href={update.link} key={update.title} target={update.link.startsWith('http') ? '_blank' : undefined} rel={update.link.startsWith('http') ? 'noreferrer' : undefined}>
                 <img className="bravo-story-image" src={update.image} alt={update.imageAlt} />
                 <div className="bravo-story-copy">
                   <span className="bravo-story-category">{update.category}</span>
                   <h3>{update.title}</h3>
                   <p>{update.description}</p>
-                  <span className="bravo-story-link">Read official guidance <ArrowRight size={15} /></span>
+                  <span className="bravo-story-link">{update.link.startsWith('http') ? 'Read official guidance' : 'Read update'} <ArrowRight size={15} /></span>
                 </div>
               </a>
             ))}
-          </AutoScrollRail>
+          </AutoScrollRail> : <p className="rounded-2xl border border-dashed border-slate-300 p-8 text-sm text-slate-600">New UK updates will be shared here soon.</p>}
         </div>
       </section>
 
@@ -490,8 +534,8 @@ export default function BravoWebsite() {
             <div><p className="bravo-kicker">PRACTICAL GUIDANCE</p><h2>Ideas for your <span>next step.</span></h2></div>
             <p>Short, useful reads for your UK career or founder journey.</p>
           </div>
-          <AutoScrollRail label="Career and founder articles">
-            {blogArticles.map((article) => (
+          {blogEntries.length ? <AutoScrollRail label="Career and founder articles">
+            {blogEntries.map((article) => (
               <a className="bravo-story-card" href={article.link} key={article.title}>
                 <img className="bravo-story-image" src={article.image} alt={article.imageAlt} />
                 <div className="bravo-story-copy">
@@ -502,7 +546,7 @@ export default function BravoWebsite() {
                 </div>
               </a>
             ))}
-          </AutoScrollRail>
+          </AutoScrollRail> : <p className="rounded-2xl border border-dashed border-slate-300 p-8 text-sm text-slate-600">New practical guides will be published here soon.</p>}
         </div>
       </section>
 
@@ -632,7 +676,7 @@ export default function BravoWebsite() {
             <h2 className="!text-3xl font-display !font-medium !tracking-tight !text-[#08234f] sm:!text-4xl">Support you can measure.</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-            <AnimatedMetric value={Number.parseFloat(analytics?.clientsCount)} suffix={String(analytics?.clientsCount || '').replace(/^[\d,.]+/, '')} label="Clients supported" />
+            <AnimatedMetric value={services.length} label="Services available" />
             <AnimatedMetric value={6} suffix="+" label="Years of experience" />
             <AnimatedMetric value={ratings.length ? Number(averageRating.split('/')[0]) : null} suffix={ratings.length ? '/5' : ''} decimals={1} label="Average client rating" showStars={ratings.length > 0} />
           </div>

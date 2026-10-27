@@ -1,11 +1,46 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { services } from '../data/services';
+import { Briefcase, Building2, Globe2, GraduationCap, ShieldCheck, Sparkles } from 'lucide-react';
+import { getServices, resolveImageUrl } from '../services/api';
+import { services as fallbackServices } from '../data/services';
+import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
 
 export default function BrandedServiceDetailPage() {
   const { slug } = useParams();
+  const [services, setServices] = useState(fallbackServices);
+  const [loading, setLoading] = useState(!fallbackServices.some((item) => item.slug === slug));
+
+  useEffect(() => {
+    let active = true;
+    getServices().then((data) => {
+      if (!active) return;
+      if (Array.isArray(data)) {
+        const iconMap = { Briefcase, Building2, Globe2, GraduationCap, ShieldCheck, Sparkles };
+        const dynamicServices = data.map((item, index) => ({
+          ...item,
+          number: String(index + 1).padStart(2, '0'),
+          icon: iconMap[item.icon] || Briefcase,
+          imageAlt: item.imageAlt || item.title,
+          image: resolveImageUrl(item.image || '') || ukJourneyImage,
+          points: Array.isArray(item.points) ? item.points : [],
+          outcomes: Array.isArray(item.outcomes) ? item.outcomes : [],
+        }));
+        setServices(dynamicServices);
+      }
+      setLoading(false);
+    }).catch(() => {
+      if (active) {
+        setServices(fallbackServices);
+        setLoading(false);
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
   const service = services.find((item) => item.slug === slug);
 
+  if (!service && loading) return <div className="min-h-[60vh] bg-white" />;
   if (!service) return <Navigate to="/" replace />;
 
   const Icon = service.icon;

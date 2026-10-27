@@ -1,335 +1,293 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Check, Eye, EyeOff, MessageSquareQuote, Pencil, Plus, Search, ShieldCheck, Star, Trash2, X } from 'lucide-react';
 import api from '../services/api';
 import AdminToast from '../components/AdminToast';
+import { resolveImageUrl } from '../../services/api';
+import fallbackAvatar from '../../assets/bravo-testimonial-avatar.svg';
 
-const emptyForm = { id: null, name: '', role: '', rating: 5, comment: '' };
+const blankForm = {
+  id: null,
+  name: '',
+  role: '',
+  rating: 5,
+  comment: '',
+  image: '',
+  permissionGranted: false,
+  isPublished: false,
+};
 
-const inputCls = "bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500/20 transition-all w-full";
+const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white';
+const labelClass = 'grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300';
 
-const Stars = ({ count }) => (
-  <div className="flex items-center gap-0.5">
-    {[1, 2, 3, 4, 5].map(i => (
-      <span key={i} className={`text-sm ${i <= count ? 'text-amber-400' : 'text-gray-700 dark:text-gray-500'}`}>★</span>
+const TestimonialStars = ({ rating, interactive = false, onChange }) => (
+  <div className="flex items-center gap-1" aria-label={`${rating} out of 5 stars`}>
+    {[1, 2, 3, 4, 5].map((value) => (
+      <button
+        key={value}
+        type={interactive ? 'button' : undefined}
+        onClick={interactive ? () => onChange(value) : undefined}
+        disabled={!interactive}
+        aria-label={interactive ? `Set ${value} star rating` : undefined}
+        className={`rounded p-0.5 ${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} ${value <= rating ? 'text-amber-400' : 'text-slate-200 dark:text-slate-600'}`}
+      >
+        <Star size={interactive ? 25 : 15} fill="currentColor" strokeWidth={1.5} />
+      </button>
     ))}
+    <span className="ml-1 text-xs font-medium text-slate-500 dark:text-slate-400">{rating}/5</span>
   </div>
 );
 
-const Modal = ({ children, onClose, maxW = 'max-w-lg' }) => (
-  <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-    <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-2xl w-full ${maxW} shadow-2xl max-h-[90vh] overflow-hidden flex flex-col`} onClick={e => e.stopPropagation()}>
-      {children}
-    </div>
-  </div>
-);
-
-const FormField = ({ label, children }) => (
-  <div className="flex flex-col gap-1.5">
-    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{label}</label>
-    {children}
-  </div>
-);
-
-const AdminReviews = () => {
+export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [editId, setEditId] = useState(null);
-  const [deleteId, setDeleteId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [form, setForm] = useState(blankForm);
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleteReview, setDeleteReview] = useState(null);
   const [toast, setToast] = useState({ message: '', type: 'success' });
-
-  useEffect(() => { loadReviews(); }, []);
 
   const loadReviews = async () => {
     setLoading(true);
-    const data = await api.getReviews();
-    setReviews(data);
-    setLoading(false);
-  };
-
-  const filtered = useMemo(() => {
-    const term = search.toLowerCase();
-    return reviews.filter(r =>
-      r.name.toLowerCase().includes(term) ||
-      r.role.toLowerCase().includes(term) ||
-      r.comment.toLowerCase().includes(term)
-    );
-  }, [reviews, search]);
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const currentData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filtered.slice(start, start + itemsPerPage);
-  }, [filtered, currentPage]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
-  const openAdd = () => { setForm(emptyForm); setEditId(null); setShowModal(true); };
-  const openEdit = (r) => { setForm({ ...r }); setEditId(r.id); setShowModal(true); };
-
-  const handleSave = async () => {
-    if (!form.name.trim()) {
-      setToast({ message: 'Reviewer name is required', type: 'error' });
-      return;
-    }
-    if (!form.role.trim()) {
-      setToast({ message: 'Role / Company is required', type: 'error' });
-      return;
-    }
-    if (!form.comment.trim()) {
-      setToast({ message: 'Review comment is required', type: 'error' });
-      return;
-    }
-    const res = editId ? await api.updateReview(editId, form) : await api.createReview(form);
-    if (res.success) {
-      setToast({ message: editId ? 'Review updated successfully' : 'Review added successfully', type: 'success' });
-      setShowModal(false);
-      await loadReviews();
-    } else {
-      setToast({ message: res.error || 'Failed to save review', type: 'error' });
+    setLoadError('');
+    try {
+      setReviews(await api.getReviews());
+    } catch (error) {
+      setLoadError(error.message || 'Could not load testimonials. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    const res = await api.deleteReview(id);
-    if (res.success) {
-      setToast({ message: 'Review deleted successfully', type: 'success' });
-      setDeleteId(null);
+  useEffect(() => { loadReviews(); }, []);
+
+  const publishedCount = reviews.filter((review) => review.isPublished && review.permissionGranted).length;
+  const draftCount = reviews.length - publishedCount;
+  const filteredReviews = useMemo(() => reviews.filter((review) => {
+    const matchesSearch = `${review.name} ${review.role} ${review.comment}`.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all'
+      || (statusFilter === 'published' && review.isPublished && review.permissionGranted)
+      || (statusFilter === 'draft' && !(review.isPublished && review.permissionGranted));
+    return matchesSearch && matchesStatus;
+  }), [reviews, search, statusFilter]);
+
+  const startAdd = () => {
+    setForm(blankForm);
+    setShowForm(true);
+  };
+
+  const startEdit = (review) => {
+    setForm({
+      ...blankForm,
+      ...review,
+      permissionGranted: Boolean(review.permissionGranted),
+      isPublished: Boolean(review.isPublished),
+    });
+    setShowForm(true);
+  };
+
+  const saveReview = async (event) => {
+    event.preventDefault();
+    if (form.isPublished && !form.permissionGranted) {
+      setToast({ message: 'Confirm client permission before publishing this testimonial.', type: 'error' });
+      return;
+    }
+    setSaving(true);
+    try {
+      const { id, ...payload } = form;
+      const response = id
+        ? await api.updateReview(id, payload)
+        : await api.createReview(payload);
+      if (!response?.success) {
+        throw new Error(response?.message || response?.error || 'Could not save testimonial.');
+      }
+      setShowForm(false);
+      setForm(blankForm);
+      setToast({ message: id ? 'Testimonial updated.' : 'Testimonial added.', type: 'success' });
       await loadReviews();
-    } else {
-      setToast({ message: res.error || 'Failed to delete review', type: 'error' });
+    } catch (error) {
+      setToast({ message: error.message || 'Could not save testimonial.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const togglePublished = async (review) => {
+    if (!review.isPublished && !review.permissionGranted) {
+      setToast({ message: 'Edit this testimonial and confirm client permission before publishing.', type: 'error' });
+      return;
+    }
+    try {
+      const response = await api.updateReview(review.id, { isPublished: !review.isPublished });
+      if (!response?.success) throw new Error(response?.message || 'Could not update testimonial status.');
+      setToast({ message: review.isPublished ? 'Testimonial moved to drafts.' : 'Testimonial published.', type: 'success' });
+      await loadReviews();
+    } catch (error) {
+      setToast({ message: error.message || 'Could not update testimonial status.', type: 'error' });
+    }
+  };
+
+  const removeReview = async () => {
+    try {
+      const response = await api.deleteReview(deleteReview.id);
+      if (!response?.success) throw new Error(response?.message || 'Could not delete testimonial.');
+      setDeleteReview(null);
+      setToast({ message: 'Testimonial deleted.', type: 'success' });
+      await loadReviews();
+    } catch (error) {
+      setToast({ message: error.message || 'Could not delete testimonial.', type: 'error' });
     }
   };
 
   return (
-    <div className="space-y-5">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Reviews</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{reviews.length} total reviews</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Website content</p>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">Client testimonials</h1>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+            Add genuine client feedback, record permission and choose which testimonials appear on the website.
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search reviews..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full pl-9 pr-4 py-2 text-xs text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 outline-none focus:border-blue-500 dark:focus:border-blue-400 w-48 transition-colors"
-            />
-          </div>
-          <button
-            onClick={openAdd}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all"
-          >
-            + Add Review
-          </button>
-        </div>
+        <button onClick={startAdd} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">
+          <Plus size={17} /> Add testimonial
+        </button>
+      </header>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[
+          ['Total testimonials', reviews.length, MessageSquareQuote, 'text-blue-600 bg-blue-50 dark:bg-blue-950/40'],
+          ['Published on website', publishedCount, Eye, 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40'],
+          ['Drafts / need permission', draftCount, ShieldCheck, 'text-amber-600 bg-amber-50 dark:bg-amber-950/40'],
+        ].map(([label, count, Icon, color]) => (
+          <article key={label} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <span className={`grid h-11 w-11 place-items-center rounded-xl ${color}`}><Icon size={20} /></span>
+            <div><p className="text-2xl font-bold text-slate-900 dark:text-white">{loading ? '—' : count}</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p></div>
+          </article>
+        ))}
+      </section>
+
+      <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-sm leading-6 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100">
+        <strong>Before publishing:</strong> use feedback the client actually provided and make sure they have agreed to its publication. Drafts are private; only published testimonials with permission are shown publicly.
       </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-600">
-                {['Name', 'Role', 'Rating', 'Comment', 'Actions'].map(h => (
-                  <th key={h} className={`text-left text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-widest px-4 py-3 ${h === 'Actions' ? 'text-right' : ''}`}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-8 h-8 border-4 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Loading reviews...</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : currentData.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <span className="text-4xl opacity-30">⭐</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No reviews found</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : currentData.map((r, i) => (
-                <tr
-                  key={r.id}
-                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${i !== currentData.length - 1 ? 'border-b border-gray-200 dark:border-gray-600' : ''}`}
-                >
-                  {/* Name + avatar */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-300 flex-shrink-0">
-                        {r.name[0]}
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">{r.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">{r.role}</td>
-                  <td className="px-4 py-3"><Stars count={r.rating} /></td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 min-w-[200px] max-w-sm">
-                    <p className="whitespace-pre-wrap">{r.comment}</p>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(r)}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(r.id)}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 transition-all"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="space-y-4">
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Manage the feedback currently stored for the website.</p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="relative block sm:w-64">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search testimonials" className={`${inputClass} pl-9`} />
+            </label>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className={inputClass} aria-label="Filter testimonials by status">
+              <option value="all">All statuses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft / permission needed</option>
+            </select>
+          </div>
         </div>
-        
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
-              Showing <span className="text-gray-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-gray-900 dark:text-white">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> of <span className="text-gray-900 dark:text-white">{filtered.length}</span> reviews
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-700 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`min-w-[32px] h-8 text-xs font-bold rounded-lg transition-all ${
-                    currentPage === page
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-700 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              </button>
-            </div>
+
+        {loadError && <div role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200">{loadError} <button onClick={loadReviews} className="ml-2 font-semibold underline">Retry</button></div>}
+
+        {loading ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">Loading testimonials…</div>
+        ) : filteredReviews.length ? (
+          <div className="grid gap-4 xl:grid-cols-2">
+            {filteredReviews.map((review) => {
+              const isPublic = Boolean(review.isPublished && review.permissionGranted);
+              return (
+                <article key={review.id} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={review.image ? resolveImageUrl(review.image) : fallbackAvatar}
+                      alt=""
+                      onError={(event) => { event.currentTarget.src = fallbackAvatar; }}
+                      className="h-14 w-14 shrink-0 rounded-full border border-slate-200 bg-slate-50 object-cover dark:border-slate-700 dark:bg-slate-800"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-bold text-slate-900 dark:text-white">{review.name}</h2>
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isPublic ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'}`}>
+                          {isPublic ? 'Published' : 'Draft'}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{review.role}</p>
+                      <div className="mt-2"><TestimonialStars rating={Number(review.rating) || 0} /></div>
+                    </div>
+                  </div>
+                  <blockquote className="mt-4 whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm leading-7 text-slate-700 dark:bg-slate-800/70 dark:text-slate-200">
+                    “{review.comment}”
+                  </blockquote>
+                  <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${review.permissionGranted ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'}`}>
+                      <ShieldCheck size={14} /> {review.permissionGranted ? 'Client permission recorded' : 'Client permission not recorded'}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => togglePublished(review)} disabled={!review.permissionGranted && !review.isPublished} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                        {isPublic ? <><EyeOff size={14} /> Unpublish</> : <><Eye size={14} /> Publish</>}
+                      </button>
+                      <button onClick={() => startEdit(review)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Pencil size={14} /> Edit</button>
+                      <button onClick={() => setDeleteReview(review)} aria-label={`Delete ${review.name}'s testimonial`} className="rounded-lg border border-red-100 p-2 text-red-600 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"><Trash2 size={15} /></button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"><MessageSquareQuote size={25} /></span>
+            <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">{reviews.length ? 'No matching testimonials' : 'Your testimonials will be managed here'}</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500 dark:text-slate-400">
+              {reviews.length
+                ? 'Try another search or choose a different publication status.'
+                : 'Add a real client quote, rating and optional photo. Keep it as a draft while you confirm permission, then publish it to the client experiences section on your website.'}
+            </p>
+            {!reviews.length && <button onClick={startAdd} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"><Plus size={16} /> Add first testimonial</button>}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Add / Edit Modal */}
-      {showModal && (
-        <Modal onClose={() => setShowModal(false)}>
-          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{editId ? 'Edit Review' : 'Add Review'}</h3>
-            <button onClick={() => setShowModal(false)} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl leading-none transition-colors">×</button>
-          </div>
-          <div className="px-5 py-4 space-y-3 overflow-y-auto flex-1">
-            <FormField label="Name *">
-              <input className={inputCls} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Reviewer name" />
-            </FormField>
-            <FormField label="Role / Company *">
-              <input className={inputCls} value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="CEO, Company Name" />
-            </FormField>
-            <FormField label="Rating">
-              {/* Interactive star picker */}
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setForm({ ...form, rating: n })}
-                    className={`text-2xl transition-colors ${n <= form.rating ? 'text-amber-400' : 'text-gray-700 dark:text-gray-500 hover:text-amber-300'}`}
-                  >
-                    ★
-                  </button>
-                ))}
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{form.rating} / 5</span>
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowForm(false); }}>
+          <form onSubmit={saveReview} className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">Client feedback</p><h2 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{form.id ? 'Edit testimonial' : 'Add testimonial'}</h2><p className="mt-1 text-sm text-slate-500">Enter an actual client-approved quote. No placeholder testimonials are published.</p></div>
+              <button type="button" onClick={() => setShowForm(false)} aria-label="Close form" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><X size={18} /></button>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className={labelClass}>Client name<input required maxLength={255} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Name as approved by the client" className={inputClass} /></label>
+              <label className={labelClass}>Role or context<input required maxLength={255} value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })} placeholder="e.g. Graduate, Founder, Career coaching client" className={inputClass} /></label>
+              <label className={`${labelClass} sm:col-span-2`}>Client feedback<textarea required rows={5} value={form.comment} onChange={(event) => setForm({ ...form, comment: event.target.value })} placeholder="Paste the client's feedback exactly as approved for publication." className={inputClass} /></label>
+              <div className={labelClass}>
+                <span>Rating</span>
+                <div className="flex min-h-[44px] items-center"><TestimonialStars rating={Number(form.rating)} interactive onChange={(rating) => setForm({ ...form, rating })} /></div>
               </div>
-            </FormField>
-            <FormField label="Comment *">
-              <textarea
-                className={`${inputCls} resize-none`}
-                rows={3}
-                value={form.comment}
-                onChange={e => setForm({ ...form, comment: e.target.value })}
-                placeholder="Write the review comment..."
-              />
-            </FormField>
-          </div>
-          <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
-            <button onClick={() => setShowModal(false)} className="text-xs px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-              Cancel
-            </button>
-            <button onClick={handleSave} className="text-xs px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all">
-              {editId ? 'Update' : 'Add'} Review
-            </button>
-          </div>
-        </Modal>
+              <label className={labelClass}>Photo URL (optional)<input type="url" value={form.image || ''} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="https://" className={inputClass} /></label>
+              <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100 sm:col-span-2">
+                <input type="checkbox" checked={Boolean(form.permissionGranted)} onChange={(event) => setForm({ ...form, permissionGranted: event.target.checked, isPublished: event.target.checked ? form.isPublished : false })} className="mt-0.5 h-4 w-4 accent-emerald-600" />
+                <span><strong>Client permission confirmed.</strong> The client has agreed to publish this quote and any attached photo on Bravo Careers’ website.</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 sm:col-span-2">
+                <input type="checkbox" checked={Boolean(form.isPublished)} disabled={!form.permissionGranted} onChange={(event) => setForm({ ...form, isPublished: event.target.checked })} className="h-4 w-4 accent-blue-600" />
+                Publish this testimonial on the website
+              </label>
+            </div>
+            {form.image && <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><img src={resolveImageUrl(form.image)} alt="" onError={(event) => { event.currentTarget.src = fallbackAvatar; }} className="h-12 w-12 rounded-full object-cover" /><span className="text-xs text-slate-500">Photo preview</span></div>}
+            <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300">Cancel</button>
+              <button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"><Check size={16} /> {saving ? 'Saving…' : form.isPublished ? 'Save and publish' : 'Save as draft'}</button>
+            </div>
+          </form>
+        </div>
       )}
 
-      {/* Delete Confirm Modal */}
-      {deleteId && (
-        <Modal onClose={() => setDeleteId(null)} maxW="max-w-sm">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-600">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
-            <button onClick={() => setDeleteId(null)} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl leading-none transition-colors">×</button>
-          </div>
-          <div className="px-5 py-5">
-            <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-center text-2xl mb-4">🗑️</div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-1">Delete this review?</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">This action cannot be undone.</p>
-          </div>
-          <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200 dark:border-gray-600">
-            <button onClick={() => setDeleteId(null)} className="text-xs px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-              Cancel
-            </button>
-            <button onClick={() => handleDelete(deleteId)} className="text-xs px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-all">
-              Delete
-            </button>
-          </div>
-        </Modal>
-      )}
+      {deleteReview && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4"><div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-slate-900"><h2 className="text-lg font-bold text-slate-900 dark:text-white">Delete testimonial?</h2><p className="mt-2 text-sm text-slate-500">This will permanently remove {deleteReview.name}’s testimonial.</p><div className="mt-6 flex justify-end gap-3"><button onClick={() => setDeleteReview(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm dark:border-slate-700">Cancel</button><button onClick={removeReview} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white">Delete</button></div></div></div>}
 
-      <AdminToast
-        message={toast.message}
-        type={toast.type}
-        onClose={() => setToast({ message: '', type: 'success' })}
-      />
+      <AdminToast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'success' })} />
     </div>
   );
-};
-
-export default AdminReviews;
+}

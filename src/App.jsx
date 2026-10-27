@@ -9,15 +9,15 @@ const BravoWebsite = lazy(() => import('./components/BravoWebsite'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const LegalPageView = lazy(() => import('./components/LegalPageView'));
 const BrandedServiceDetailPage = lazy(() => import('./components/BrandedServiceDetailPage'));
+const ArticleDetailPage = lazy(() => import('./components/ArticleDetailPage'));
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'));
 const AdminDashboard = lazy(() => import('./admin/pages/AdminDashboard'));
-const AdminProjects = lazy(() => import('./admin/pages/AdminProjects'));
 const AdminServices = lazy(() => import('./admin/pages/AdminServices'));
+const AdminContentManager = lazy(() => import('./admin/pages/AdminContentManager'));
 const AdminReviews = lazy(() => import('./admin/pages/AdminReviews'));
 const AdminManagement = lazy(() => import('./admin/pages/AdminManagement'));
 const AdminSettings = lazy(() => import('./admin/pages/AdminSettings'));
 const AdminProfile = lazy(() => import('./admin/pages/AdminProfile'));
-const AdminAnalytics = lazy(() => import('./admin/pages/AdminAnalytics'));
 const AdminCareers = lazy(() => import('./admin/pages/AdminCareers'));
 const AdminEnquiries = lazy(() => import('./admin/pages/AdminEnquiries'));
 const AdminLegalPages = lazy(() => import('./admin/pages/AdminLegalPages'));
@@ -68,13 +68,13 @@ function App() {
             </AdminProtectedRoute>
           }>
             <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="projects" element={<AdminProjects />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="blogs" element={<AdminContentManager type="blog" />} />
+            <Route path="news" element={<AdminContentManager type="news" />} />
             <Route path="management" element={<AdminManagement />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="profile" element={<AdminProfile />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="careers" element={<AdminCareers />} />
             <Route path="enquiries" element={<AdminEnquiries />} />
             <Route path="legal-pages" element={<AdminLegalPages />} />
@@ -94,6 +94,13 @@ function App() {
               <BackToTop />
             </>
           } />
+          <Route path="/articles/:type/:slug" element={
+            <>
+              <ArticleDetailPage />
+              <Footer />
+              <BackToTop />
+            </>
+          } />
           <Route path="/resources" element={<Navigate to="/resources/free-resources" replace />} />
           <Route path="/resources/:type" element={
             <>
@@ -103,7 +110,6 @@ function App() {
             </>
           } />
           <Route path="/services/*" element={<Navigate to="/#services" replace />} />
-          <Route path="/projects/*" element={<Navigate to="/#services" replace />} />
           <Route path="/contact" element={<Navigate to="/#contact" replace />} />
           <Route path="/careers" element={<Navigate to="/#services" replace />} />
           <Route path="/legal/:slug" element={

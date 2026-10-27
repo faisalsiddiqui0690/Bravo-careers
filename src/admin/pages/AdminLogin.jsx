@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../hooks/useAdminAuth';
-import logo from '../../assets/nplogo.png';
 
 const AdminLogin = () => {
   const { darkMode, toggleTheme } = useAdminAuth();
@@ -97,7 +96,7 @@ const AdminLogin = () => {
               {/* Logo and branding */}
               <div className="text-center mb-2">
                 <div className="inline-flex items-center justify-center w-full px-4 mb-3">
-                  <img src={logo} alt="NPquantumtech" className={`max-h-32 w-auto object-contain ${darkMode ? 'brightness-0 invert' : 'brightness-0'}`} style={{ maxWidth: '280px' }} />
+                  <span className={`text-2xl font-extrabold tracking-tight ${darkMode ? 'text-white' : 'text-[#08234f]'}`}>Bravo <span className="text-amber-500">Careers</span></span>
                 </div>
               </div>
 
@@ -240,7 +239,7 @@ const AdminLogin = () => {
 
                   <p className={`text-[8px] ${darkMode ? 'text-gray-600' : 'text-gray-500'
                     }`}>
-                    © 2026 NPquantumtech · Secure Access
+                    © 2026 Bravo Careers · Secure Access
                   </p>
                 </div>
               </div>
