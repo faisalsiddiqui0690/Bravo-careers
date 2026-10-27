@@ -377,7 +377,18 @@
 .bravo-nav .bravo-nav-cta:hover,
 .bravo-nav .bravo-nav-cta:focus-visible { background: #fff; color: #061c48; }
 .bravo-menu-button { display: none; border: 0; background: none; color: #fff; cursor: pointer; }
-
+.bravo-nav-dropdown { position: relative; }
+.bravo-nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; background: transparent; color: #f3f6fb; cursor: pointer; font: 600 13px 'Inter', sans-serif; }
+.bravo-nav-dropdown-trigger:hover,
+.bravo-nav-dropdown-trigger:focus-visible { color: #ffd83d; }
+.bravo-nav-dropdown-menu { position: absolute; top: calc(100% + 15px); left: -14px; display: none; min-width: 175px; padding: 7px; border: 1px solid #e8ebf1; border-radius: 9px; background: #fff; box-shadow: 0 14px 28px rgba(6,28,72,.16); }
+.bravo-nav-dropdown-menu::before { position: absolute; right: 0; bottom: 100%; left: 0; height: 16px; content: ''; }
+.bravo-nav-dropdown:hover .bravo-nav-dropdown-menu,
+.bravo-nav-dropdown:focus-within .bravo-nav-dropdown-menu,
+.bravo-nav-dropdown.is-open .bravo-nav-dropdown-menu { display: flex; flex-direction: column; }
+.bravo-nav-dropdown-menu a { padding: 9px 10px; border-radius: 5px; color: #364963; font-size: 12px; text-decoration: none; }
+.bravo-nav-dropdown-menu a:hover,
+.bravo-nav-dropdown-menu a:focus-visible { background: #f3f6fb; color: #1d66b3; }
 .bravo-hero {
   position: relative;
   overflow: visible;
@@ -508,19 +519,52 @@
 .bravo-contact-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 .bravo-contact-actions .bravo-button { white-space: nowrap; }
 .bravo-contact-actions > span { max-width: 280px; color: #514821; font-size: 11px; }
-.bravo-disclaimer { padding: 29px 0; background: #f5f6f9; }
-.bravo-disclaimer h2 { margin: 0 0 10px; font: 800 13px 'Inter', sans-serif; letter-spacing: .04em; text-transform: uppercase; }
-.bravo-disclaimer p { max-width: 1050px; margin: 7px 0; color: #657187; font-size: 10px; line-height: 1.75; }
-
-.bravo-footer { padding: 52px 0 18px; background: #041638; color: #fff; }
-.bravo-footer-main { display: grid; grid-template-columns: 1.5fr .7fr .7fr; gap: 60px; padding-bottom: 38px; }
-.bravo-footer-brand .bravo-brand-logo { width: 100px; height: 100px; }
-.bravo-footer-main > div:first-child > p { margin: 15px 0 0; color: #a9b4c5; font-size: 11px; line-height: 1.8; }
-.bravo-footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-.bravo-footer-links h3 { margin: 0 0 6px; color: var(--bravo-yellow); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-.bravo-footer-links a { display: inline-flex; align-items: center; gap: 4px; color: #ccd4e2; font-size: 11px; text-decoration: none; }
-.bravo-footer-links a:hover { color: var(--bravo-yellow); }
-.bravo-footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.13); color: #94a2b8; font-size: 9px; }
+.bravo-resources-page { min-height: 100vh; padding-top: 102px; color: #10264a; background: #f6f8fb; font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
+.bravo-resources-container { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+.bravo-resources-hero { padding: 58px 0 34px; background: linear-gradient(135deg, #071a39, #123d84); color: #fff; }
+.bravo-resources-eyebrow { margin: 0 0 10px; color: #a98300; font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.bravo-resources-hero .bravo-resources-eyebrow { color: #ffe17b; }
+.bravo-resources-hero h1 { max-width: 720px; margin: 0; font: 700 clamp(34px, 5vw, 51px)/1.08 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
+.bravo-resources-hero > .bravo-resources-container > p:not(.bravo-resources-eyebrow) { max-width: 640px; margin: 16px 0 24px; color: #d7e0ef; font-size: 14px; line-height: 1.8; }
+.bravo-resource-tabs { display: flex; flex-wrap: wrap; gap: 9px; }
+.bravo-resource-tabs a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid rgba(255,255,255,.34); border-radius: 7px; color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; }
+.bravo-resource-tabs a.is-active,
+.bravo-resource-tabs a:hover { border-color: #ffd83d; background: #ffd83d; color: #061c48; }
+.bravo-resources-content { padding: 38px 0 76px; }
+.bravo-ebook-notice { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 24px; padding: 15px 18px; border: 1px solid #f0df9e; border-radius: 10px; background: #fff9df; color: #514821; }
+.bravo-ebook-notice svg { flex: 0 0 auto; margin-top: 2px; color: #927400; }
+.bravo-ebook-notice p { margin: 0; font-size: 12px; line-height: 1.7; }
+.bravo-resource-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(310px, .85fr); align-items: start; gap: 25px; }
+.bravo-resource-list { display: grid; gap: 14px; }
+.bravo-resource-card { display: grid; grid-template-columns: 46px 1fr; gap: 15px; padding: 22px; border: 1px solid #e1e6ee; border-radius: 12px; background: #fff; box-shadow: 0 5px 18px rgba(6,28,72,.035); }
+.bravo-resource-card.is-selected { border-color: #d5ba41; box-shadow: 0 8px 22px rgba(6,28,72,.08); }
+.bravo-resource-card-icon { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 10px; background: #fff4bd; color: #08245b; }
+.bravo-resource-card-type { margin: 1px 0 6px; color: #8b7200; font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.bravo-resource-card h2 { margin: 0; color: #08234f; font: 700 18px/1.3 'Space Grotesk', sans-serif; }
+.bravo-resource-card-description { margin: 8px 0 12px; color: #637188; font-size: 12px; line-height: 1.75; }
+.bravo-resource-select { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; color: #1e4e90; cursor: pointer; font: 700 11px 'Inter', sans-serif; }
+.bravo-resource-select:hover { color: #987a00; }
+.bravo-resource-form-panel { position: sticky; top: 122px; padding: 25px; border: 1px solid #e1e6ee; border-radius: 13px; background: #fff; box-shadow: 0 8px 24px rgba(6,28,72,.06); }
+.bravo-resource-form-panel h2 { margin: 0; color: #08234f; font: 700 23px/1.25 'Space Grotesk', sans-serif; }
+.bravo-resource-form-intro { margin: 9px 0 20px; color: #637188; font-size: 12px; line-height: 1.7; }
+.bravo-resource-form { display: grid; gap: 13px; }
+.bravo-resource-form > label { display: grid; gap: 6px; color: #364963; font-size: 11px; font-weight: 700; }
+.bravo-resource-form input:not([type='checkbox']),
+.bravo-resource-form textarea { width: 100%; padding: 10px 12px; border: 1px solid #d9e0e9; border-radius: 7px; outline: none; background: #fff; color: #10264a; font: 12px 'Inter', sans-serif; }
+.bravo-resource-form input:focus,
+.bravo-resource-form textarea:focus { border-color: #1e4e90; box-shadow: 0 0 0 3px rgba(30,78,144,.1); }
+.bravo-resource-form textarea { resize: vertical; }
+.bravo-resource-form .bravo-resource-consent { display: flex; align-items: flex-start; gap: 8px; color: #637188; font-size: 10px; font-weight: 500; line-height: 1.6; }
+.bravo-resource-consent input { flex: 0 0 auto; margin: 2px 0 0; accent-color: #123d84; }
+.bravo-resource-submit { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 7px; background: #08245b; color: #fff; cursor: pointer; font: 700 12px 'Inter', sans-serif; }
+.bravo-resource-submit:hover { background: #123d84; }
+.bravo-resource-submit:disabled { cursor: wait; opacity: .7; }
+.bravo-resource-privacy { margin: -4px 0 0; color: #7b8798; font-size: 9px; line-height: 1.6; }
+.bravo-resource-privacy a { color: #1e4e90; font-weight: 700; }
+.bravo-resource-status { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 11px; line-height: 1.6; }
+.bravo-resource-status:empty { display: none; }
+.bravo-resource-status.is-error { color: #a12424; }
+.bravo-resource-status.is-success { color: #216e4e; }
 
 @media (max-width: 900px) {
   .bravo-hero-art img { object-position: 62% center; }
@@ -528,6 +572,7 @@
   .bravo-nav { gap: 12px; }
   .bravo-nav > a { font-size: 12px; }
   .bravo-nav .bravo-nav-cta { gap: 6px; padding: 10px 11px; font-size: 11px; }
+  .bravo-nav-dropdown-trigger { font-size: 12px; }
   .bravo-service-card { padding: 22px 19px; }
 }
 
@@ -546,7 +591,18 @@
   .bravo-nav.is-open { display: flex; flex-direction: column; }
   .bravo-nav > a { padding: 13px 5px; border-bottom: 1px solid #eef0f4; color: #364963; }
   .bravo-nav > a:hover { color: #1d66b3; }
+  .bravo-nav-dropdown { border-bottom: 1px solid #eef0f4; }
+  .bravo-nav-dropdown-trigger { width: 100%; justify-content: space-between; padding: 13px 5px; color: #364963; font-size: 12px; text-align: left; }
+  .bravo-nav-dropdown-menu { position: static; min-width: 0; padding: 0 0 6px 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .bravo-nav-dropdown-menu::before { display: none; }
+  .bravo-nav-dropdown-menu a { padding: 10px; color: #364963; }
   .bravo-nav .bravo-nav-cta { justify-content: center; margin-top: 12px; padding: 13px; }
+  .bravo-resources-page { padding-top: 96px; }
+  .bravo-resources-container { width: calc(100% - 32px); }
+  .bravo-resources-hero { padding: 44px 0 28px; }
+  .bravo-resources-content { padding: 26px 0 54px; }
+  .bravo-resource-layout { grid-template-columns: 1fr; }
+  .bravo-resource-form-panel { position: static; }
   .bravo-hero { min-height: 680px; padding-top: 132px; }
   .bravo-hero-art { top: -96px; bottom: 48px; }
   .bravo-hero-art img { object-position: 65% center; }
@@ -579,8 +635,16 @@
   .bravo-contact-card { align-items: flex-start; flex-direction: column; gap: 25px; padding: 28px 23px; }
   .bravo-contact-actions { width: 100%; }
   .bravo-contact-actions .bravo-button { width: 100%; }
-  .bravo-footer-main { grid-template-columns: 1fr 1fr; gap: 32px 20px; }
-  .bravo-footer-main > div:first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 420px) {
+  .bravo-resource-ticker { gap: 8px; padding: 0 10px; }
+  .bravo-ticker-label { font-size: 9px; }
+  .bravo-ticker-item { font-size: 9px; }
+  .bravo-ticker-download { padding: 6px 7px; }
+  .bravo-resource-card { grid-template-columns: 36px 1fr; gap: 11px; padding: 17px; }
+  .bravo-resource-card-icon { width: 36px; height: 36px; }
+  .bravo-resource-form-panel { padding: 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowDownToLine, ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
 import bravoCareersLogo from '../assets/bravo-careers-global-travel-badge.png';
 
 const resourceHighlights = [
@@ -19,6 +19,7 @@ const links = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const previousScrollY = useRef(0);
   const { pathname } = useLocation();
@@ -45,7 +46,10 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setResourcesOpen(false);
+  };
   const sectionHref = (id) => pathname === '/' ? `#${id}` : `/#${id}`;
   const highlights = (
     <span className="bravo-ticker-content">
@@ -58,16 +62,16 @@ export default function Navbar() {
   return (
     <>
       <div className="bravo-resource-ticker" role="region" aria-label="Free career resources">
-        <span className="bravo-ticker-label">Free Resources</span>
+        <Link className="bravo-ticker-label" to="/resources/free-resources">Free Resources</Link>
         <div className="bravo-ticker-window" aria-hidden="true">
           <div className="bravo-ticker-track">
             {highlights}
             {highlights}
           </div>
         </div>
-        <a className="bravo-ticker-download" href="https://www.innovatorone.co.uk/freeresources" target="_blank" rel="noreferrer">
-          Download <ArrowDownToLine size={14} />
-        </a>
+        <Link className="bravo-ticker-download" to="/resources/free-resources">
+          Get yours <ArrowDownToLine size={14} />
+        </Link>
       </div>
       <header className={`bravo-header ${headerVisible || menuOpen ? '' : 'is-hidden'}`}>
         <div className="bravo-container bravo-header-inner">
@@ -77,7 +81,22 @@ export default function Navbar() {
           </Link>
           <nav className={`bravo-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
             {links.map(([label, id]) => <a href={sectionHref(id)} key={id} onClick={closeMenu}>{label}</a>)}
-            <a className="bravo-nav-cta" href={sectionHref('contact')} onClick={closeMenu}>Free clarity call <ArrowRight size={15} /></a>
+            <div className={`bravo-nav-dropdown ${resourcesOpen ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                className="bravo-nav-dropdown-trigger"
+                onClick={() => setResourcesOpen(!resourcesOpen)}
+                aria-expanded={resourcesOpen}
+                aria-haspopup="true"
+              >
+                Resources <ChevronDown size={15} />
+              </button>
+              <div className="bravo-nav-dropdown-menu">
+                <Link to="/resources/ebooks" onClick={closeMenu}>E-Books</Link>
+                <Link to="/resources/free-resources" onClick={closeMenu}>Free Resources</Link>
+              </div>
+            </div>
+            <a className="bravo-nav-cta" href={sectionHref('contact')} onClick={closeMenu}>Contact Us <ArrowRight size={15} /></a>
           </nav>
           <button type="button" className="bravo-menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
             {menuOpen ? <X size={23} /> : <Menu size={23} />}

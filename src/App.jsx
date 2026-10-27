@@ -6,6 +6,7 @@ import BackToTop from './components/BackToTop';
 import './index.css';
 
 const BravoWebsite = lazy(() => import('./components/BravoWebsite'));
+const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const LegalPageView = lazy(() => import('./components/LegalPageView'));
 const BrandedServiceDetailPage = lazy(() => import('./components/BrandedServiceDetailPage'));
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'));
@@ -89,6 +90,14 @@ function App() {
           <Route path="/services/:slug" element={
             <>
               <BrandedServiceDetailPage />
+              <Footer />
+              <BackToTop />
+            </>
+          } />
+          <Route path="/resources" element={<Navigate to="/resources/free-resources" replace />} />
+          <Route path="/resources/:type" element={
+            <>
+              <ResourcesPage />
               <Footer />
               <BackToTop />
             </>

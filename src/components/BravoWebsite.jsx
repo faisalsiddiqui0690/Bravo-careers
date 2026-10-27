@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, Check, ChevronDown } from 'lucide-react';
+import { ArrowDown, ArrowRight, Check, ChevronDown, Star } from 'lucide-react';
 import { getAnalytics, getReviews, IMAGE_BASE } from '../services/api';
 import { services } from '../data/services';
 import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
@@ -14,6 +14,7 @@ import visaNewsImage from '../assets/bravo-visa-news.svg';
 import jobsNewsImage from '../assets/bravo-jobs-news.svg';
 import founderNewsImage from '../assets/bravo-founder-news.svg';
 import testimonialAvatar from '../assets/bravo-testimonial-avatar.svg';
+import teamPhoto from '../assets/slider1.jpeg';
 
 const faqs = [
   {
@@ -102,7 +103,7 @@ const AutoScrollRail = ({ children, label }) => (
   </div>
 );
 
-function AnimatedMetric({ value, suffix = '', decimals = 0, label }) {
+function AnimatedMetric({ value, suffix = '', decimals = 0, label, showStars = false }) {
   const metricRef = useRef(null);
   const [count, setCount] = useState(0);
   const target = Number.isFinite(value) ? value : null;
@@ -148,17 +149,25 @@ function AnimatedMetric({ value, suffix = '', decimals = 0, label }) {
 
   return (
     <div ref={metricRef} className="flex min-h-40 flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-5 py-8 text-center shadow-sm shadow-slate-900/5">
-      <strong className="font-display text-5xl font-bold tracking-tight text-[#08234f] sm:text-6xl">
+      <span className="font-display text-5xl font-light tracking-tight text-[#08234f] sm:text-6xl">
         {target === null ? '—' : `${count.toFixed(decimals)}${suffix}`}
-      </strong>
-      <span className="mt-3 text-sm font-semibold tracking-wide text-slate-600">{label}</span>
+      </span>
+      {showStars && target !== null && (
+        <span className="mt-2 inline-flex items-center gap-1 text-amber-500" aria-label={`${target.toFixed(decimals)} out of 5 stars`}>
+          {Array.from({ length: 5 }, (_, index) => (
+            <Star key={index} size={15} fill="currentColor" strokeWidth={1.5} />
+          ))}
+        </span>
+      )}
+      <span className="mt-2 text-sm font-normal tracking-wide text-slate-600">{label}</span>
     </div>
   );
 }
 
 export default function BravoWebsite() {
   const [openFaq, setOpenFaq] = useState(0);
-  const [newsletterStatus, setNewsletterStatus] = useState('');
+  const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', service: '', message: '' });
+  const [contactStatus, setContactStatus] = useState({ loading: false, error: '', success: '' });
   const [analytics, setAnalytics] = useState(null);
   const [reviews, setReviews] = useState([]);
 
@@ -171,9 +180,40 @@ export default function BravoWebsite() {
     });
   }, []);
 
-  const handleNewsletterSubmit = (event) => {
+  const handleContactChange = (event) => {
+    const { name, value } = event.target;
+    setContactForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleContactSubmit = (event) => {
     event.preventDefault();
-    setNewsletterStatus('Newsletter sign-up is not connected yet. Follow @bravocareers for updates while we set it up.');
+    setContactStatus({ loading: false, error: '', success: '' });
+
+    const message = [
+      'Hello Bravo Careers, I would like to get in touch.',
+      '',
+      `Name: ${contactForm.name.trim()}`,
+      `Email: ${contactForm.email.trim()}`,
+      `Phone: ${contactForm.phone.trim()}`,
+      `Interested in: ${contactForm.service || 'General enquiry'}`,
+      '',
+      'Message:',
+      contactForm.message.trim(),
+    ].join('\n');
+    const whatsappUrl = `https://wa.me/917559377727?text=${encodeURIComponent(message)}`;
+    const whatsappWindow = window.open(whatsappUrl, '_blank');
+
+    if (whatsappWindow) {
+      whatsappWindow.opener = null;
+      setContactStatus({
+        loading: false,
+        error: '',
+        success: 'WhatsApp opened with your message. Review it there and tap Send to submit your enquiry.',
+      });
+      return;
+    }
+
+    window.location.assign(whatsappUrl);
   };
 
   const ratings = reviews
@@ -214,47 +254,113 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-intro bravo-section" id="about">
-        <div className="bravo-container bravo-intro-grid">
-          <div>
-            <p className="bravo-kicker">ABOUT BRAVO CAREERS</p>
-            <h2>Good decisions start with <span>honest guidance.</span></h2>
+      <section className="bg-white py-20 sm:py-24" id="about">
+        <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-stretch lg:gap-16 2xl:gap-24">
+            <div className="flex flex-col lg:min-h-full">
+              <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">ABOUT BRAVO CAREERS</p>
+              <h2 className="!text-4xl font-display !font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
+                Honest guidance for your <span className="!text-amber-600">UK career.</span>
+              </h2>
+              <div className="relative mt-8 aspect-[1.55/1] min-h-[280px] flex-1 overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-xl shadow-slate-900/10 lg:aspect-[1.7/1] lg:min-h-0 lg:flex-none">
+                <img
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  src={teamPhoto}
+                  alt="Professionals collaborating around a table"
+                  loading="lazy"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071a39]/90 via-[#071a39]/45 to-transparent px-5 pb-5 pt-16 sm:px-7 sm:pb-7">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-200">Your next step, made clearer</p>
+                  <p className="mt-1 font-display text-xl font-bold text-white sm:text-2xl">Career plans built around you.</p>
+                </div>
+                <div className="absolute right-4 top-4 rounded-xl border border-white/70 bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:right-5 sm:top-5">
+                  <p className="font-display text-xl font-bold leading-none text-[#08234f]">6+ years</p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">UK careers experience</p>
+                </div>
+              </div>
+            </div>
+            <div className="max-w-4xl text-base leading-8 text-slate-600">
+              <p>
+                With more than six years in UK careers and recruitment, Bravo Careers helps international students, graduates, professionals and founders build a realistic plan for life and work in the UK.
+              </p>
+              <p className="mt-4">
+                Whether you are looking for UK sponsored jobs, making the most of your Graduate visa or exploring the Innovator Founder route, we explain the options and practical next steps in plain English. We also share Hinglish videos for our Indian community.
+              </p>
+              <p className="mt-4">
+                Our career support can include finding and researching genuine opportunities, checking sponsor information against official sources, improving your UK CV and LinkedIn profile, preparing for interviews, and planning your job search during the Graduate visa period. For founders, we help you test your idea, organise your business plan and prepare your pitch before you invest.
+              </p>
+              <p className="mt-4">
+                Bravo Careers was created after seeing talented people lose time and money to promises no one can guarantee. We offer a more honest alternative: clear guidance on what is realistic, what preparation takes and what to be careful about.
+              </p>
+              <p className="mt-4 font-semibold text-[#08234f]">
+                No fake promises. No guaranteed-job claims. Just an honest conversation about what may be right for you.
+              </p>
+              <a href="#contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-800 transition hover:gap-3 hover:text-amber-700">
+                Tell us where you want to go <ArrowRight size={16} />
+              </a>
+            </div>
           </div>
-          <div className="bravo-intro-copy">
-            <p>Moving your career or business forward in the UK can feel complicated. Bravo Careers helps you understand your options, focus on the steps that matter and move ahead with a plan that fits your circumstances.</p>
-            <p>We believe in clear conversations, transparent prices and support that meets you where you are—without pressure or promises no one can make.</p>
-            <a href="#contact" className="bravo-inline-link">Tell us where you want to go <ArrowRight size={16} /></a>
+
+          <div className="mt-14">
+            <p className="mb-5 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">WHO WE ARE</p>
+            <div className="grid gap-5 md:grid-cols-3">
+            <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+              <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">6+ years</p>
+              <h3 className="mt-2 text-base font-bold text-[#08234f]">UK careers experience</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">Practical insight into the UK job market, recruitment and what employers look for.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+              <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">UK-based</p>
+              <h3 className="mt-2 text-base font-bold text-[#08234f]">Careers and recruitment team</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">Support for international students, graduates and professionals from the UK and around the world.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
+              <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">Founder-minded</p>
+              <h3 className="mt-2 text-base font-bold text-[#08234f]">Business planning support</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">Our team includes startup founders and professionals with Fortune 500 experience and product development backgrounds.</p>
+            </article>
+            </div>
           </div>
+
         </div>
       </section>
 
       <section className="bg-slate-50 py-20 sm:py-24" id="services">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
           <div className="mb-10 flex flex-col gap-5 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
+            <div className="max-w-4xl">
               <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">How we can help</p>
-              <h2 className="text-4xl font-bold leading-tight tracking-tight text-[#08234f] sm:text-5xl">
-                Three routes. <span className="text-amber-600">One trusted partner.</span>
+              <h2 className="!text-4xl font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
+                Six services. <span className="!text-amber-600">One trusted partner.</span>
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-                Our expertise spans UK career planning, founder readiness and practical one-to-one support—so you can choose a route that fits your next step.
+              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+                From sponsored job searches and UK career preparation to founder and route research, find practical support for your next step.
               </p>
             </div>
-            <p className="max-w-md text-sm leading-7 text-slate-600">
-              Explore each service to see what is included. We will help you understand your options before you commit.
+            <p className="max-w-lg text-sm leading-7 text-slate-600 lg:pb-1">
+              Explore each service to see the support available. We will help you understand your options before you commit.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-7">
             {services.map(({ number, slug, title, description, icon: Icon, points, image, imageAlt }) => (
               <article key={number} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-slate-900/10">
-                <Link to={`/services/${slug}`} className="relative block h-56 overflow-hidden bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-amber-400" aria-label={`Explore ${title}`}>
-                  <img className="h-full w-full object-cover transition duration-500 group-hover:scale-105" src={image} alt={imageAlt} loading="lazy" />
+                <Link to={`/services/${slug}`} className="relative block h-52 overflow-hidden bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-amber-400 sm:h-60" aria-label={`Explore ${title}`}>
+                  <img
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    src={image}
+                    alt={imageAlt}
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = ukJourneyImage;
+                    }}
+                  />
                   <span className="absolute left-5 top-5 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-[#08234f]/90 text-xs font-bold text-amber-300 shadow-lg">{number}</span>
                   <span className="absolute bottom-4 right-4 grid h-12 w-12 place-items-center rounded-full border-4 border-white bg-amber-300 text-[#08234f] shadow-lg">
                     <Icon size={21} strokeWidth={1.8} />
                   </span>
                 </Link>
-                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                <div className="flex flex-1 flex-col p-6 sm:p-7 lg:p-8">
                   <h3 className="text-xl font-bold tracking-tight text-[#08234f]">{title}</h3>
                   <p className="mt-3 min-h-[4.5rem] text-sm leading-7 text-slate-600">{description}</p>
                   <ul className="mb-6 mt-5 grid gap-3">
@@ -275,21 +381,29 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-testimonials bravo-section" id="testimonials">
-        <div className="bravo-container">
-          <div className="bravo-section-heading">
-            <div><p className="bravo-kicker">CLIENT EXPERIENCES</p><h2>Support that starts <span>with you.</span></h2></div>
-            <p>Read feedback shared by people who have worked with Bravo Careers.</p>
+      <section className="bravo-testimonials bravo-section !py-20 sm:!py-24" id="testimonials">
+        <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
+          <div className="mb-9 flex flex-col gap-5 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-300">CLIENT EXPERIENCES</p>
+              <h2 className="max-w-3xl !text-4xl font-display !font-bold !leading-tight !tracking-tight !text-white sm:!text-5xl">
+                Every journey is different. <span className="!text-amber-300">So is every story.</span>
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-slate-300">
+              Explore feedback shared by people who have worked with Bravo Careers. We keep client experiences in their own words.
+            </p>
           </div>
           {reviews.length ? (
             <AutoScrollRail label="Client testimonials">
               {reviews.map((review, index) => {
                 const rating = Math.min(5, Math.max(0, Math.round(Number(review.rating) || 0)));
                 return (
-                  <article className="bravo-testimonial-card" key={review.id || `${review.name}-${index}`}>
-                    <div className="bravo-testimonial-visual">
+                  <article className="bravo-testimonial-card group !min-h-[330px] !w-[min(82vw,410px)] !rounded-2xl !border-slate-200 !bg-white !p-7 !shadow-lg !shadow-slate-950/10 transition duration-300 hover:-translate-y-1 hover:!border-amber-300 hover:!shadow-xl" key={review.id || `${review.name}-${index}`}>
+                    <div className="relative z-10 mb-4 h-[68px] w-[68px] overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-md ring-1 ring-slate-200">
                       {review.image ? (
                         <img
+                          className="h-full w-full object-cover"
                           src={review.image.startsWith('/uploads') ? `${IMAGE_BASE}${review.image}` : review.image}
                           alt={`${review.name}`}
                           onError={(event) => {
@@ -298,23 +412,28 @@ export default function BravoWebsite() {
                           }}
                         />
                       ) : (
-                        <img src={testimonialAvatar} alt="" />
+                        <img className="h-full w-full object-cover" src={testimonialAvatar} alt="" />
                       )}
                     </div>
-                    <div className="bravo-testimonial-stars" aria-label={`${rating} out of 5 stars`}>
-                      {'★'.repeat(rating)}<span>{'★'.repeat(5 - rating)}</span>
+                    <div className="text-sm tracking-[0.18em] text-amber-500" aria-label={`${rating} out of 5 stars`}>
+                      {'★'.repeat(rating)}<span className="text-slate-200">{'★'.repeat(5 - rating)}</span>
                     </div>
-                    <blockquote>{review.comment}</blockquote>
-                    <div className="bravo-testimonial-author">
-                      <strong>{review.name}</strong>
-                      {review.role && <span>{review.role}</span>}
+                    <blockquote className="relative my-5 text-sm leading-7 text-slate-700">{review.comment}</blockquote>
+                    <div className="mt-auto flex flex-col gap-1 border-t border-slate-100 pt-4">
+                      <strong className="text-sm font-bold text-[#08234f]">{review.name}</strong>
+                      {review.role && <span className="text-xs text-slate-500">{review.role}</span>}
                     </div>
                   </article>
                 );
               })}
             </AutoScrollRail>
           ) : (
-            <p className="bravo-empty-testimonials">Client testimonials will appear here as soon as they are available.</p>
+            <div className="rounded-2xl border border-white/15 bg-white/5 px-6 py-10 text-center sm:px-10">
+              <p className="text-lg font-semibold text-white">Client stories will appear here.</p>
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-300">
+                We share client feedback when it is available, so you can hear directly about people’s experiences with our support.
+              </p>
+            </div>
           )}
         </div>
       </section>
@@ -403,54 +522,129 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bravo-newsletter-section">
-        <div className="bravo-container bravo-newsletter-card">
-          <div className="bravo-newsletter-copy">
-            <p className="bravo-kicker">THE BRAVO CAREERS NEWSLETTER</p>
-            <h2>Useful updates for<br /><span>your next UK step.</span></h2>
-            <p>Get practical career guidance, resource announcements and founder support updates—straight to your inbox.</p>
+      <section className="bg-white px-5 pb-20 sm:px-8 sm:pb-24" id="contact">
+        <div className="mx-auto grid max-w-[1680px] gap-10 rounded-3xl bg-[#f4f6fa] p-6 sm:p-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 lg:p-14 2xl:px-20">
+          <div className="flex flex-col items-start">
+            <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">YOUR NEXT STEP STARTS HERE</p>
+            <h2 className="!text-4xl font-display !font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
+              Let’s make a plan that <span className="!text-amber-600">works for you.</span>
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600">
+              Tell us what you are working towards. Complete the form and continue to WhatsApp, where your details and message will be ready to send.
+            </p>
+            <p className="mt-4 text-xs leading-6 text-slate-500">WhatsApp: +91 75593 77727</p>
           </div>
-          <form className="bravo-newsletter-form" onSubmit={handleNewsletterSubmit}>
-            <label htmlFor="bravo-newsletter-email">Your email address</label>
-            <div className="bravo-newsletter-input-row">
-              <input id="bravo-newsletter-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
-              <button type="submit">Join the newsletter <ArrowRight size={16} /></button>
+
+          <form className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8" onSubmit={handleContactSubmit}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2 text-xs font-semibold text-slate-700">
+                Full name
+                <input
+                  className="min-h-12 rounded-lg border border-slate-300 px-4 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                  type="text"
+                  name="name"
+                  autoComplete="name"
+                  value={contactForm.name}
+                  onChange={handleContactChange}
+                  placeholder="Your name"
+                  maxLength="255"
+                  required
+                />
+              </label>
+              <label className="grid gap-2 text-xs font-semibold text-slate-700">
+                Email address
+                <input
+                  className="min-h-12 rounded-lg border border-slate-300 px-4 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  value={contactForm.email}
+                  onChange={handleContactChange}
+                  placeholder="you@example.com"
+                  maxLength="255"
+                  required
+                />
+              </label>
             </div>
-            <p className="bravo-newsletter-privacy">No spam. Just useful updates. You can unsubscribe at any time.</p>
-            <p className="bravo-newsletter-status" aria-live="polite">{newsletterStatus}</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2 text-xs font-semibold text-slate-700">
+                Phone number
+                <input
+                  className="min-h-12 rounded-lg border border-slate-300 px-4 text-sm font-normal text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  value={contactForm.phone}
+                  onChange={handleContactChange}
+                  placeholder="Your phone number"
+                  maxLength="20"
+                  required
+                />
+              </label>
+              <label className="grid gap-2 text-xs font-semibold text-slate-700">
+                I’m interested in
+                <select
+                  className="min-h-12 rounded-lg border border-slate-300 bg-white px-4 text-sm font-normal text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                  name="service"
+                  value={contactForm.service}
+                  onChange={handleContactChange}
+                >
+                  <option value="">Select a topic</option>
+                  {services.map((service) => <option value={service.title} key={service.slug}>{service.title}</option>)}
+                  <option value="Free clarity call">Free clarity call</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
+            <label className="grid gap-2 text-xs font-semibold text-slate-700">
+              How can we help?
+              <textarea
+                className="min-h-32 resize-y rounded-lg border border-slate-300 px-4 py-3 text-sm font-normal leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                name="message"
+                value={contactForm.message}
+                onChange={handleContactChange}
+                placeholder="Tell us a little about your goals or questions..."
+                minLength="10"
+                maxLength="5000"
+                required
+              />
+            </label>
+            <button
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#08245b] px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:cursor-wait disabled:opacity-60 sm:justify-self-start"
+              type="submit"
+              disabled={contactStatus.loading}
+            >
+              Continue to WhatsApp {!contactStatus.loading && <ArrowRight size={17} />}
+            </button>
+            <p className="text-xs leading-6 text-slate-500">
+              WhatsApp will open with your details filled in. Tap Send in WhatsApp to deliver the enquiry. We do not guarantee jobs, endorsements or visa outcomes.
+            </p>
+            {contactStatus.error && <p className="text-sm text-red-700" role="alert">{contactStatus.error}</p>}
+            {contactStatus.success && <p className="text-sm font-medium text-emerald-700" role="status">{contactStatus.success}</p>}
           </form>
         </div>
       </section>
 
-      <section className="bravo-contact-section" id="contact">
-        <div className="bravo-container bravo-contact-card">
-          <div><p className="bravo-kicker">YOUR NEXT STEP STARTS HERE</p><h2>Ask about a free<br /><span>15-minute clarity call.</span></h2><p>Honest answers first. Payment only if it makes sense for you.</p></div>
-          <div className="bravo-contact-actions">
-            <a className="bravo-button bravo-button-navy" href="https://www.instagram.com/bravocareers/" target="_blank" rel="noreferrer">Connect on Instagram <ArrowRight size={17} /></a>
-            <span>Send us a message to arrange a call, or follow <strong>@bravocareers</strong> for practical guidance.</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="bravo-disclaimer">
-        <div className="bravo-container">
-          <h2>Important information</h2>
-          <p>Bravo Careers provides career, job-search and business-plan guidance. We are not a law firm and do not give regulated UK immigration advice. Where immigration advice or a visa application is needed, we refer you to an appropriately regulated adviser.</p>
-          <p>No job offer, endorsement, visa or other outcome can be guaranteed. Decisions are made by employers, endorsing bodies and the UK Home Office.</p>
-          <p>Prices are in GBP and include payment processing. Government fees, the Immigration Health Surcharge, endorsement fees and other third-party costs are not included.</p>
-        </div>
-      </section>
-
       <section className="bg-slate-100 py-16 sm:py-20" aria-label="Bravo Careers at a glance">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">A track record built on trust</p>
-            <h2 className="text-3xl font-bold tracking-tight text-[#08234f] sm:text-4xl">Support you can measure.</h2>
+            <h2 className="!text-3xl font-display !font-medium !tracking-tight !text-[#08234f] sm:!text-4xl">Support you can measure.</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
             <AnimatedMetric value={Number.parseFloat(analytics?.clientsCount)} suffix={String(analytics?.clientsCount || '').replace(/^[\d,.]+/, '')} label="Clients supported" />
-            <AnimatedMetric value={5} suffix="+" label="Years of experience" />
-            <AnimatedMetric value={ratings.length ? Number(averageRating.split('/')[0]) : null} suffix={ratings.length ? '/5' : ''} decimals={1} label="Average client rating" />
+            <AnimatedMetric value={6} suffix="+" label="Years of experience" />
+            <AnimatedMetric value={ratings.length ? Number(averageRating.split('/')[0]) : null} suffix={ratings.length ? '/5' : ''} decimals={1} label="Average client rating" showStars={ratings.length > 0} />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-slate-100 px-5 pb-12 sm:px-8 sm:pb-16">
+        <div className="mx-auto max-w-[1680px] rounded-2xl border border-slate-200 bg-white px-6 py-6 sm:px-8">
+          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-[#08234f]">Important information</h2>
+          <div className="mt-3 grid gap-3 text-xs leading-6 text-slate-600 md:grid-cols-2">
+            <p>Bravo Careers provides career, recruitment and business-planning support. We do not provide regulated UK immigration advice. For advice about your circumstances, consult an appropriately regulated adviser and check GOV.UK.</p>
+            <p>Employers, endorsing bodies and the UK Home Office make their own decisions. We cannot guarantee a job, endorsement, sponsor licence or visa outcome. Government and other third-party fees are separate.</p>
           </div>
         </div>
       </section>
