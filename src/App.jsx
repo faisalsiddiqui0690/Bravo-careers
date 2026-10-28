@@ -18,9 +18,7 @@ const AdminReviews = lazy(() => import('./admin/pages/AdminReviews'));
 const AdminManagement = lazy(() => import('./admin/pages/AdminManagement'));
 const AdminSettings = lazy(() => import('./admin/pages/AdminSettings'));
 const AdminProfile = lazy(() => import('./admin/pages/AdminProfile'));
-const AdminCareers = lazy(() => import('./admin/pages/AdminCareers'));
 const AdminEnquiries = lazy(() => import('./admin/pages/AdminEnquiries'));
-const AdminLegalPages = lazy(() => import('./admin/pages/AdminLegalPages'));
 const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'));
 const AdminProtectedRoute = lazy(() => import('./admin/components/AdminProtectedRoute'));
 
@@ -75,9 +73,7 @@ function App() {
             <Route path="management" element={<AdminManagement />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="profile" element={<AdminProfile />} />
-            <Route path="careers" element={<AdminCareers />} />
             <Route path="enquiries" element={<AdminEnquiries />} />
-            <Route path="legal-pages" element={<AdminLegalPages />} />
             <Route index element={<Navigate to="dashboard" replace />} />
           </Route>
           <Route path="/" element={

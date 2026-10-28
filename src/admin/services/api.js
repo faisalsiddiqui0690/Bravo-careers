@@ -129,6 +129,24 @@ const api = {
     return await request(`/news/${id}`, { method: 'DELETE' });
   },
 
+  // Resources
+  async getResources() {
+    const json = await request('/resources/admin/all');
+    return json?.success ? json.data : [];
+  },
+
+  async createResource(data) {
+    return await request('/resources', { method: 'POST', body: JSON.stringify(data) });
+  },
+
+  async updateResource(id, data) {
+    return await request(`/resources/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
+  },
+
+  async deleteResource(id) {
+    return await request(`/resources/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  },
+
   // Careers
   async getCareers() {
     const json = await request('/careers/all');
@@ -217,8 +235,9 @@ const api = {
   },
 
   // Uploads
-  async uploadServiceIcon(formData) {
-    return await request('/services/upload', {
+  async uploadImage(folder, formData) {
+    formData.append('folder', folder);
+    return await request('/uploads/image', {
       method: 'POST',
       body: formData,
     });

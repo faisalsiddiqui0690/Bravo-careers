@@ -12,6 +12,7 @@ const statusBadge = {
 const typeBadge = {
   General: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
   Career:  'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  Resource: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400',
 };
 
 const Modal = ({ children, onClose, maxW = 'max-w-lg' }) => (
@@ -168,7 +169,7 @@ export default function AdminEnquiries() {
         </div>
         {/* Type filter */}
         <div className="flex items-center gap-1.5 ml-auto">
-          {['All', 'General', 'Career'].map(t => (
+          {['All', 'General', 'Career', 'Resource'].map(t => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
@@ -229,11 +230,18 @@ export default function AdminEnquiries() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{enq.email}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">{enq.subject}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">{enq.resourceTitle || enq.subject}</p>
+                    {enq.type === 'Resource' && (
+                      <p className="mt-1 text-[11px] text-indigo-600 dark:text-indigo-400">
+                        {enq.resourceType === 'ebooks' ? 'E-book' : enq.resourceType === 'free' ? 'Free resource' : 'Resource type not recorded'}
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${typeBadge[enq.type] || 'bg-gray-100 text-gray-600'}`}>
-                      {enq.type}
+                      {enq.type === 'Resource'
+                        ? enq.resourceType === 'ebooks' ? 'E-book' : enq.resourceType === 'free' ? 'Free resource' : 'Resource'
+                        : enq.type}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -345,6 +353,15 @@ export default function AdminEnquiries() {
               <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
                 <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1">Applied For</p>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white break-words">{selected.careerTitle}</p>
+              </div>
+            )}
+
+            {selected.type === 'Resource' && (
+              <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800 rounded-lg px-4 py-3">
+                <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
+                  {selected.resourceType === 'ebooks' ? 'Requested e-book' : selected.resourceType === 'free' ? 'Requested free resource' : 'Requested resource'}
+                </p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white break-words">{selected.resourceTitle || 'Resource name not recorded'}</p>
               </div>
             )}
 

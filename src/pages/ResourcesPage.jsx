@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowDownToLine, ArrowRight, BookOpen, CheckCircle2, FileText } from 'lucide-react';
-import { resources } from '../data/resources';
+import { getResources } from '../services/api';
 import { createResourcePdf } from '../utils/resourcePdf';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -11,19 +11,38 @@ const blankForm = { name: '', email: '', phone: '', details: '', consent: false 
 export default function ResourcesPage() {
   const { type } = useParams();
   const resourceType = type === 'ebooks' ? 'ebooks' : 'free';
-  const items = resources[resourceType];
-  const [selectedId, setSelectedId] = useState(items[0].id);
+  const [items, setItems] = useState([]);
+  const [selectedId, setSelectedId] = useState('');
+  const [resourcesLoading, setResourcesLoading] = useState(true);
+  const [resourcesError, setResourcesError] = useState('');
   const [form, setForm] = useState(blankForm);
   const [status, setStatus] = useState({ loading: false, error: '', success: '' });
   const selectedResource = useMemo(
-    () => items.find((item) => item.id === selectedId) || items[0],
+    () => items.find((item) => item.id === selectedId) || items[0] || null,
     [items, selectedId],
   );
 
   useEffect(() => {
-    setSelectedId(items[0].id);
+    let active = true;
+    setResourcesLoading(true);
+    setResourcesError('');
+    setItems([]);
+    setSelectedId('');
+    getResources(resourceType)
+      .then((data) => {
+        if (!active) return;
+        setItems(data);
+        setSelectedId(data[0]?.id || '');
+      })
+      .catch(() => {
+        if (active) setResourcesError('We could not load resources. Please try again later.');
+      })
+      .finally(() => {
+        if (active) setResourcesLoading(false);
+      });
     setStatus({ loading: false, error: '', success: '' });
-  }, [items]);
+    return () => { active = false; };
+  }, [resourceType]);
 
   const handleChange = (event) => {
     const { name, value, checked, type: inputType } = event.target;
@@ -44,7 +63,9 @@ export default function ResourcesPage() {
           phone: form.phone.trim(),
           subject: `Resource request: ${selectedResource.title}`,
           message: `Requested ${resourceType === 'ebooks' ? 'e-book' : 'free resource'}: ${selectedResource.title}\n\nWhat the visitor shared:\n${form.details.trim()}`,
-          type: 'General',
+          type: 'Resource',
+          resourceId: selectedResource.id,
+          resourceTitle: selectedResource.title,
         }),
       });
       const result = await response.json();
@@ -100,6 +121,12 @@ export default function ResourcesPage() {
               <p><strong>Payment is not connected yet.</strong> For now, e-books are available after you submit the request form. No payment is taken.</p>
             </div>
           )}
+          {resourcesLoading && <p role="status">Loading resources...</p>}
+          {resourcesError && <p role="alert">{resourcesError}</p>}
+          {!resourcesLoading && !resourcesError && items.length === 0 && (
+            <p>No {resourceType === 'ebooks' ? 'e-books' : 'free resources'} are published yet.</p>
+          )}
+          {items.length > 0 && selectedResource && (
           <div className="bravo-resource-layout">
             <div className="bravo-resource-list">
               {items.map((item) => {
@@ -163,6 +190,7 @@ export default function ResourcesPage() {
               </form>
             </aside>
           </div>
+          )}
         </div>
       </section>
     </main>

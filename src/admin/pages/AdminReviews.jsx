@@ -5,6 +5,7 @@ import AdminToast from '../components/AdminToast';
 import { resolveImageUrl } from '../../services/api';
 import fallbackAvatar from '../../assets/bravo-testimonial-avatar.svg';
 
+
 const blankForm = {
   id: null,
   name: '',
@@ -46,6 +47,7 @@ export default function AdminReviews() {
   const [form, setForm] = useState(blankForm);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteReview, setDeleteReview] = useState(null);
   const [toast, setToast] = useState({ message: '', type: 'success' });
 
@@ -138,6 +140,27 @@ export default function AdminReviews() {
       await loadReviews();
     } catch (error) {
       setToast({ message: error.message || 'Could not delete testimonial.', type: 'error' });
+    }
+  };
+
+  const uploadImage = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const response = await api.uploadImage('reviews', formData);
+      if (!response?.success || !response.data?.imageUrl) {
+        throw new Error(response?.message || 'Image upload did not return a URL.');
+      }
+      setForm((current) => ({ ...current, image: response.data.imageUrl }));
+      setToast({ message: 'Photo uploaded.', type: 'success' });
+    } catch (uploadError) {
+      setToast({ message: uploadError.message || 'Could not upload photo.', type: 'error' });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -266,7 +289,37 @@ export default function AdminReviews() {
                 <span>Rating</span>
                 <div className="flex min-h-[44px] items-center"><TestimonialStars rating={Number(form.rating)} interactive onChange={(rating) => setForm({ ...form, rating })} /></div>
               </div>
-              <label className={labelClass}>Photo URL (optional)<input type="url" value={form.image || ''} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="https://" className={inputClass} /></label>
+              <div className={labelClass}>
+                <label htmlFor="review-photo">Client photo (optional)</label>
+                <input
+                  id="review-photo"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/jfif,image/pjpeg"
+                  onChange={uploadImage}
+                  disabled={uploadingImage}
+                  className={inputClass}
+                />
+                <span className="text-xs font-normal text-slate-500">
+                  {uploadingImage ? 'Uploading photo…' : 'Optional · JPG, PNG, WebP, JFIF · max 5 MB'}
+                </span>
+                {form.image && (
+                  <div className="flex items-center gap-3 pt-1">
+                    <img
+                      src={resolveImageUrl(form.image)}
+                      alt=""
+                      onError={(event) => { event.currentTarget.src = fallbackAvatar; }}
+                      className="h-12 w-12 rounded-full border border-slate-200 object-cover"
+                    />
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-red-600"
+                      onClick={() => setForm({ ...form, image: '' })}
+                    >
+                      Remove photo
+                    </button>
+                  </div>
+                )}
+              </div>
               <label className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100 sm:col-span-2">
                 <input type="checkbox" checked={Boolean(form.permissionGranted)} onChange={(event) => setForm({ ...form, permissionGranted: event.target.checked, isPublished: event.target.checked ? form.isPublished : false })} className="mt-0.5 h-4 w-4 accent-emerald-600" />
                 <span><strong>Client permission confirmed.</strong> The client has agreed to publish this quote and any attached photo on Bravo Careers’ website.</span>
@@ -276,7 +329,6 @@ export default function AdminReviews() {
                 Publish this testimonial on the website
               </label>
             </div>
-            {form.image && <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><img src={resolveImageUrl(form.image)} alt="" onError={(event) => { event.currentTarget.src = fallbackAvatar; }} className="h-12 w-12 rounded-full object-cover" /><span className="text-xs text-slate-500">Photo preview</span></div>}
             <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
               <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300">Cancel</button>
               <button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"><Check size={16} /> {saving ? 'Saving…' : form.isPublished ? 'Save and publish' : 'Save as draft'}</button>

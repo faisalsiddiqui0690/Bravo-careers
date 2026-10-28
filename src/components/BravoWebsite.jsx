@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, Briefcase, Building2, Check, ChevronDown, Globe2, GraduationCap, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import Reveal from './Reveal';
 import { getBlogs, getNews, getReviews, getServices, resolveImageUrl } from '../services/api';
 import { services as fallbackServices } from '../data/services';
 import ukJourneyImage from '../assets/Twilight on Westminster Bridge.png';
@@ -215,7 +216,12 @@ export default function BravoWebsite() {
     }).catch((error) => console.error('Falling back to local Bravo news content:', error));
     getReviews().then((data) => {
       if (Array.isArray(data)) {
-        setReviews(data.filter((review) => review?.name && review?.comment));
+        const uniqueReviews = new Map();
+        data.filter((review) => review?.name && review?.comment).forEach((review) => {
+          const key = `${review.name.trim().toLowerCase()}|${review.role?.trim().toLowerCase() || ''}|${review.comment.trim().toLowerCase()}`;
+          if (!uniqueReviews.has(key)) uniqueReviews.set(key, review);
+        });
+        setReviews([...uniqueReviews.values()]);
       }
     });
   }, []);
@@ -270,7 +276,7 @@ export default function BravoWebsite() {
           <img src={ukJourneyImage} alt="" />
         </div>
         <div className="bravo-container bravo-hero-grid">
-          <div className="bravo-hero-copy">
+          <div className="bravo-hero-copy bravo-hero-animate">
             <div className="bravo-eyebrow"><span /> A clearer route to your UK future</div>
             <h1>Make your next UK move <span>with confidence.</span></h1>
             <p className="bravo-hero-lede">Honest, practical support for sponsored job searches and ambitious founders. Start with a free call. Pay only when it makes sense for you.</p>
@@ -294,10 +300,10 @@ export default function BravoWebsite() {
         </div>
       </section>
 
-      <section className="bg-white py-20 sm:py-24" id="about">
+      <section className="bg-white py-14 sm:py-16" id="about">
         <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-stretch lg:gap-16 2xl:gap-24">
-            <div className="flex flex-col lg:min-h-full">
+            <Reveal direction="left" className="flex flex-col lg:min-h-full">
               <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">ABOUT BRAVO CAREERS</p>
               <h2 className="!text-4xl font-display !font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
                 Honest guidance for your <span className="!text-amber-600">UK career.</span>
@@ -318,8 +324,8 @@ export default function BravoWebsite() {
                   <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">UK careers experience</p>
                 </div>
               </div>
-            </div>
-            <div className="max-w-4xl text-base leading-8 text-slate-600">
+            </Reveal>
+            <Reveal direction="right" className="max-w-4xl text-base leading-8 text-slate-600">
               <p>
                 With more than six years in UK careers and recruitment, Bravo Careers helps international students, graduates, professionals and founders build a realistic plan for life and work in the UK.
               </p>
@@ -338,36 +344,45 @@ export default function BravoWebsite() {
               <a href="#contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-800 transition hover:gap-3 hover:text-amber-700">
                 Tell us where you want to go <ArrowRight size={16} />
               </a>
-            </div>
+            </Reveal>
           </div>
 
-          <div className="mt-14">
-            <p className="mb-5 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">WHO WE ARE</p>
+          <div className="mt-10">
+            <Reveal direction="up">
+              <p className="mb-5 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">WHO WE ARE</p>
+            </Reveal>
             <div className="grid gap-5 md:grid-cols-3">
+            <Reveal direction="up" delay="100">
             <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
               <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">6+ years</p>
               <h3 className="mt-2 text-base font-bold text-[#08234f]">UK careers experience</h3>
               <p className="mt-2 text-sm leading-7 text-slate-600">Practical insight into the UK job market, recruitment and what employers look for.</p>
             </article>
+            </Reveal>
+            <Reveal direction="up" delay="200">
             <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
               <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">UK-based</p>
               <h3 className="mt-2 text-base font-bold text-[#08234f]">Careers and recruitment team</h3>
               <p className="mt-2 text-sm leading-7 text-slate-600">Support for international students, graduates and professionals from the UK and around the world.</p>
             </article>
+            </Reveal>
+            <Reveal direction="up" delay="300">
             <article className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
               <p className="font-display text-3xl font-bold tracking-tight text-[#08234f]">Founder-minded</p>
               <h3 className="mt-2 text-base font-bold text-[#08234f]">Business planning support</h3>
               <p className="mt-2 text-sm leading-7 text-slate-600">Our team includes startup founders and professionals with Fortune 500 experience and product development backgrounds.</p>
             </article>
+            </Reveal>
             </div>
           </div>
 
         </div>
       </section>
 
-      <section className="bg-slate-50 py-20 sm:py-24" id="services">
+      <section className="bg-slate-50 py-14 sm:py-16" id="services">
         <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
           <div className="mb-10 flex flex-col gap-5 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
+            <Reveal direction="left">
             <div className="max-w-4xl">
               <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">How we can help</p>
               <h2 className="!text-4xl font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
@@ -377,13 +392,17 @@ export default function BravoWebsite() {
                 From sponsored job searches and UK career preparation to founder and route research, find practical support for your next step.
               </p>
             </div>
+            </Reveal>
+            <Reveal direction="right">
             <p className="max-w-lg text-sm leading-7 text-slate-600 lg:pb-1">
               Explore each service to see the support available. We will help you understand your options before you commit.
             </p>
+            </Reveal>
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-7">
-            {services.map(({ number, slug, title, description, icon: Icon, points = [], image, imageAlt }) => (
-              <article key={number} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-slate-900/10">
+            {services.map(({ number, slug, title, description, icon: Icon, points = [], image, imageAlt }, idx) => (
+              <Reveal key={number} direction="up" delay={String(Math.min((idx % 3) * 100 + 100, 300))}>
+              <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-slate-900/10">
                 <Link to={`/services/${slug}`} className="relative block h-52 overflow-hidden bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-amber-400 sm:h-60" aria-label={`Explore ${title}`}>
                   <img
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
@@ -416,26 +435,31 @@ export default function BravoWebsite() {
                   </Link>
                 </div>
               </article>
+              </Reveal>
             ))}
           </div>
           {!services.length && <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">Our services are being updated. Please check back soon.</p>}
         </div>
       </section>
 
-      <section className="bravo-testimonials bravo-section !py-20 sm:!py-24" id="testimonials">
+      <section className="bravo-testimonials bravo-section !py-14 sm:!py-16" id="testimonials">
         <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
           <div className="mb-9 flex flex-col gap-5 lg:mb-12 lg:flex-row lg:items-end lg:justify-between">
+            <Reveal direction="left">
             <div>
-              <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-300">CLIENT EXPERIENCES</p>
-              <h2 className="max-w-3xl !text-4xl font-display !font-bold !leading-tight !tracking-tight !text-white sm:!text-5xl">
-                {reviews.length ? <>Every journey is different. <span className="!text-amber-300">So is every story.</span></> : <>A more honest kind of <span className="!text-amber-300">support.</span></>}
+              <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">CLIENT EXPERIENCES</p>
+              <h2 className="max-w-3xl !text-4xl font-display !font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
+                {reviews.length ? <>Every journey is different. <span className="!text-amber-600">So is every story.</span></> : <>A more honest kind of <span className="!text-amber-600">support.</span></>}
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-7 text-slate-300">
+            </Reveal>
+            <Reveal direction="right">
+            <p className="max-w-xl text-sm leading-7 text-slate-600">
               {reviews.length
                 ? 'Explore feedback shared by people who have worked with Bravo Careers. We keep client experiences in their own words.'
                 : 'We only share genuine client feedback when we have permission to publish it.'}
             </p>
+            </Reveal>
           </div>
           {reviews.length ? (
             <AutoScrollRail label="Client testimonials">
@@ -455,7 +479,9 @@ export default function BravoWebsite() {
                           }}
                         />
                       ) : (
-                        <img className="h-full w-full object-cover" src={testimonialAvatar} alt="" />
+                        <span className="grid h-full w-full place-items-center text-lg font-bold text-[#12386d]">
+                          {review.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
+                        </span>
                       )}
                     </div>
                     <div className="text-sm tracking-[0.18em] text-amber-500" aria-label={`${rating} out of 5 stars`}>
@@ -472,9 +498,9 @@ export default function BravoWebsite() {
             </AutoScrollRail>
           ) : (
             <div className="mx-auto max-w-3xl rounded-2xl border border-white/15 bg-white/[0.06] px-6 py-10 text-center sm:px-10">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-300/15 text-amber-300"><Star size={25} /></span>
-              <p className="mt-5 text-lg font-semibold text-white">Client feedback is being prepared.</p>
-              <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-300">
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-100 text-amber-700"><Star size={25} /></span>
+              <p className="mt-5 text-lg font-semibold text-[#08234f]">Client feedback is being prepared.</p>
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-600">
                 Genuine testimonials will appear here once they have been added and approved for publication. We do not use placeholder names or invented reviews.
               </p>
             </div>
@@ -490,13 +516,22 @@ export default function BravoWebsite() {
           </div>
           {newsEntries.length ? <AutoScrollRail label="UK career and founder resources">
             {newsEntries.map((update) => (
-              <a className="bravo-story-card bravo-news-card" href={update.link} key={update.title} target={update.link.startsWith('http') ? '_blank' : undefined} rel={update.link.startsWith('http') ? 'noreferrer' : undefined}>
-                <img className="bravo-story-image" src={update.image} alt={update.imageAlt} />
-                <div className="bravo-story-copy">
-                  <span className="bravo-story-category">{update.category}</span>
+              <a className="bravo-news-card" href={update.link} key={update.title} target={update.link.startsWith('http') ? '_blank' : undefined} rel={update.link.startsWith('http') ? 'noreferrer' : undefined}>
+                <div className="bravo-news-card-img">
+                  <img src={update.image} alt={update.imageAlt} />
+                  <span className="bravo-news-badge">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Official
+                  </span>
+                </div>
+                <div className="bravo-news-card-body">
+                  <span className="bravo-news-category">{update.category}</span>
                   <h3>{update.title}</h3>
                   <p>{update.description}</p>
-                  <span className="bravo-story-link">{update.link.startsWith('http') ? 'Read official guidance' : 'Read update'} <ArrowRight size={15} /></span>
+                  <span className="bravo-news-link">
+                    {update.link.startsWith('http') ? 'Read official guidance' : 'Read update'}
+                    <ArrowRight size={14} />
+                  </span>
                 </div>
               </a>
             ))}
@@ -506,23 +541,23 @@ export default function BravoWebsite() {
 
       <section className="bravo-process bravo-section">
         <div className="bravo-container bravo-process-grid">
-          <div className="bravo-process-intro">
+          <Reveal direction="left" className="bravo-process-intro">
             <p className="bravo-kicker">A SIMPLE PLACE TO START</p>
             <h2>Clarity first.<br /><span>Then a plan.</span></h2>
             <p>Every journey is different. We begin by understanding yours, then talk through the options openly—before you pay for anything.</p>
             <a href="#contact" className="bravo-button bravo-button-navy">Start with a free call <ArrowRight size={17} /></a>
-          </div>
+          </Reveal>
           <div className="bravo-steps">
             {[
               ['01', 'Tell us your situation', 'Share what you are working towards and where you feel stuck.'],
               ['02', 'Get an honest assessment', 'We explain what may fit, what needs work and whether you need us at all.'],
               ['03', 'Choose your next step', 'Take a guide, book a session or leave with a clearer direction—no pressure.'],
-            ].map(([number, title, description]) => (
-              <div className="bravo-step" key={number}>
+            ].map(([number, title, description], idx) => (
+              <Reveal key={number} direction="right" delay={String(idx * 100 + 100)} className="bravo-step">
                 <span className="bravo-step-number">{number}</span>
                 <div><h3>{title}</h3><p>{description}</p></div>
                 <ArrowRight className="bravo-step-arrow" size={18} />
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -536,13 +571,18 @@ export default function BravoWebsite() {
           </div>
           {blogEntries.length ? <AutoScrollRail label="Career and founder articles">
             {blogEntries.map((article) => (
-              <a className="bravo-story-card" href={article.link} key={article.title}>
-                <img className="bravo-story-image" src={article.image} alt={article.imageAlt} />
-                <div className="bravo-story-copy">
-                  <span className="bravo-story-category">{article.category}</span>
+              <a className="bravo-blog-card" href={article.link} key={article.title}>
+                <div className="bravo-blog-card-img">
+                  <img src={article.image} alt={article.imageAlt} />
+                  <span className="bravo-blog-cat">{article.category}</span>
+                </div>
+                <div className="bravo-blog-card-body">
                   <h3>{article.title}</h3>
                   <p>{article.description}</p>
-                  <span className="bravo-story-link">{article.linkLabel} <ArrowRight size={15} /></span>
+                  <span className="bravo-blog-link">
+                    {article.linkLabel}
+                    <ArrowRight size={14} />
+                  </span>
                 </div>
               </a>
             ))}
@@ -552,8 +592,13 @@ export default function BravoWebsite() {
 
       <section className="bravo-faq bravo-section" id="faqs">
         <div className="bravo-container bravo-faq-grid">
-          <div className="bravo-faq-intro"><p className="bravo-kicker">GOOD TO KNOW</p><h2>Questions, <span>answered.</span></h2><p>Still wondering if we are the right fit? Start with a no-pressure conversation.</p><a href="#contact" className="bravo-inline-link">Ask us directly <ArrowRight size={16} /></a></div>
-          <div className="bravo-faq-list">
+          <Reveal direction="left" className="bravo-faq-intro">
+            <p className="bravo-kicker">GOOD TO KNOW</p>
+            <h2>Questions, <span>answered.</span></h2>
+            <p>Still wondering if we are the right fit? Start with a no-pressure conversation.</p>
+            <a href="#contact" className="bravo-inline-link">Ask us directly <ArrowRight size={16} /></a>
+          </Reveal>
+          <Reveal direction="right" className="bravo-faq-list">
             {faqs.map(({ question, answer }, index) => (
               <article className={`bravo-faq-item ${openFaq === index ? 'is-open' : ''}`} key={question}>
                 <button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? -1 : index)}>
@@ -562,13 +607,13 @@ export default function BravoWebsite() {
                 {openFaq === index && <p>{answer}</p>}
               </article>
             ))}
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="bg-white px-5 pb-20 sm:px-8 sm:pb-24" id="contact">
+      <section className="bg-white px-5 pb-14 sm:px-8 sm:pb-16" id="contact">
         <div className="mx-auto grid max-w-[1680px] gap-10 rounded-3xl bg-[#f4f6fa] p-6 sm:p-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 lg:p-14 2xl:px-20">
-          <div className="flex flex-col items-start">
+          <Reveal direction="left" className="flex flex-col items-start">
             <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">YOUR NEXT STEP STARTS HERE</p>
             <h2 className="!text-4xl font-display !font-bold !leading-tight !tracking-tight !text-[#08234f] sm:!text-5xl">
               Let’s make a plan that <span className="!text-amber-600">works for you.</span>
@@ -577,8 +622,9 @@ export default function BravoWebsite() {
               Tell us what you are working towards. Complete the form and continue to WhatsApp, where your details and message will be ready to send.
             </p>
             <p className="mt-4 text-xs leading-6 text-slate-500">WhatsApp: +91 75593 77727</p>
-          </div>
+          </Reveal>
 
+          <Reveal direction="right">
           <form className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8" onSubmit={handleContactSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-2 text-xs font-semibold text-slate-700">
@@ -666,15 +712,16 @@ export default function BravoWebsite() {
             {contactStatus.error && <p className="text-sm text-red-700" role="alert">{contactStatus.error}</p>}
             {contactStatus.success && <p className="text-sm font-medium text-emerald-700" role="status">{contactStatus.success}</p>}
           </form>
+          </Reveal>
         </div>
       </section>
 
-      <section className="bg-slate-100 py-16 sm:py-20" aria-label="Bravo Careers at a glance">
+      <section className="bg-slate-100 py-12 sm:py-14" aria-label="Bravo Careers at a glance">
         <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12 2xl:px-16">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
+          <Reveal direction="up" className="mx-auto mb-8 max-w-2xl text-center">
             <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-amber-700">A track record built on trust</p>
             <h2 className="!text-3xl font-display !font-medium !tracking-tight !text-[#08234f] sm:!text-4xl">Support you can measure.</h2>
-          </div>
+          </Reveal>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
             <AnimatedMetric value={services.length} label="Services available" />
             <AnimatedMetric value={6} suffix="+" label="Years of experience" />

@@ -42,6 +42,19 @@ export const getNews = async () => {
   }
 };
 
+export const getResources = async (type) => {
+  try {
+    const query = type ? `?type=${encodeURIComponent(type)}` : '';
+    const res = await fetch(`${API_BASE}/resources${query}`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const json = await res.json();
+    return json.success ? json.data : [];
+  } catch (error) {
+    console.error('getResources error:', error);
+    throw error;
+  }
+};
+
 export const getPublishedArticle = async (type, slug) => {
   try {
     const collection = type === 'blog' ? 'blogs' : type === 'news' ? 'news' : null;

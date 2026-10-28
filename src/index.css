@@ -446,7 +446,7 @@
 .bravo-hero-bottom-inner { display: flex; min-height: 54px; align-items: center; justify-content: space-between; color: #aab9d0; font-size: 9px; font-weight: 700; letter-spacing: .14em; }
 .bravo-hero-bottom-inner a { display: inline-flex; align-items: center; gap: 8px; color: var(--bravo-yellow); font-size: 11px; letter-spacing: 0; text-decoration: none; }
 
-.bravo-section { padding: 96px 0; }
+.bravo-section { padding: 64px 0; }
 .bravo-site [id] { scroll-margin-top: 130px; }
 .bravo-intro { background: #fff; }
 .bravo-intro-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 100px; }
@@ -617,7 +617,7 @@
   .bravo-trust-row span { font-size: 10px; }
   .bravo-hero-bottom-inner { min-height: 48px; font-size: 7px; letter-spacing: .09em; }
   .bravo-hero-bottom-inner a { font-size: 9px; }
-  .bravo-section { padding: 68px 0; }
+  .bravo-section { padding: 48px 0; }
   .bravo-intro-grid, .bravo-process-grid, .bravo-faq-grid { grid-template-columns: 1fr; gap: 28px; }
   .bravo-newsletter-section { padding-bottom: 60px; }
   .bravo-newsletter-card { grid-template-columns: 1fr; gap: 23px; padding: 26px 21px; }
@@ -654,7 +654,7 @@
 
 /* Horizontal editorial and testimonial rails */
 .bravo-editorial { background: #f5f7fa; }
-.bravo-testimonials { background: var(--bravo-navy); color: #fff; }
+.bravo-testimonials { background: #f3f6fa; color: var(--bravo-ink); }
 .bravo-testimonials .bravo-section-heading > p { color: #c5d0e1; }
 .bravo-testimonials .bravo-section-heading h2 { color: #fff; }
 .bravo-news { background: #fff; }
@@ -697,7 +697,206 @@
 .bravo-testimonial-author { display: flex; flex-direction: column; gap: 3px; margin-top: auto; }
 .bravo-testimonial-author strong { color: var(--bravo-navy); font-size: 12px; }
 .bravo-testimonial-author span { color: var(--bravo-muted); font-size: 10px; }
-.bravo-empty-testimonials { margin: 0; padding: 25px; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; color: #d0d8e8; font-size: 13px; }
+/* ─── News cards — dark navy, horizontal layout ─────────────────────────── */
+.bravo-news { background: #07193a; }
+.bravo-news .bravo-section-heading h2 { color: #fff; }
+.bravo-news .bravo-section-heading .bravo-kicker { color: #ffd83d; }
+.bravo-news .bravo-section-heading > p { color: #8fa5c4; }
+
+.bravo-news-card {
+  display: flex;
+  flex-direction: row;
+  width: clamp(320px, 38vw, 440px);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px;
+  background: rgba(255,255,255,.05);
+  color: #e8eef8;
+  text-decoration: none;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease;
+  backdrop-filter: blur(4px);
+}
+.bravo-news-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 216, 61, .35);
+  background: rgba(255,255,255,.09);
+}
+.bravo-news-card-img {
+  position: relative;
+  flex: 0 0 130px;
+  overflow: hidden;
+}
+.bravo-news-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+.bravo-news-card:hover .bravo-news-card-img img {
+  transform: scale(1.06);
+}
+.bravo-news-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #ffd83d;
+  color: #061c48;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.bravo-news-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 18px 18px 18px 16px;
+}
+.bravo-news-category {
+  color: #7aabda;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.bravo-news-card-body h3 {
+  margin: 8px 0 7px;
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.bravo-news-card-body p {
+  margin: 0 0 14px;
+  color: #8fa5c4;
+  font-size: 11px;
+  line-height: 1.75;
+  flex: 1;
+}
+.bravo-news-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffd83d;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: auto;
+}
+
+/* ─── Blog cards — warm white, portrait layout with category pill ─────── */
+.bravo-editorial { background: #fffbf2; }
+.bravo-editorial .bravo-section-heading .bravo-kicker { color: #a0650a; }
+.bravo-editorial .bravo-section-heading h2 { color: #2a1a00; }
+.bravo-editorial .bravo-section-heading > p { color: #7a6240; }
+
+.bravo-blog-card {
+  display: flex;
+  flex-direction: column;
+  width: clamp(280px, 30vw, 340px);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #f0e4c8;
+  background: #fff;
+  color: #2a1a00;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(100, 60, 0, .07);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.bravo-blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(100, 60, 0, .13);
+}
+.bravo-blog-card-img {
+  position: relative;
+  height: 164px;
+  overflow: hidden;
+  background: #f5e8cc;
+}
+.bravo-blog-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+.bravo-blog-card:hover .bravo-blog-card-img img {
+  transform: scale(1.05);
+}
+.bravo-blog-cat {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 248, 220, .92);
+  color: #7a4f00;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(200, 140, 0, .25);
+}
+.bravo-blog-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 18px 20px 20px;
+}
+.bravo-blog-card-body h3 {
+  margin: 0 0 9px;
+  color: #1a1200;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.bravo-blog-card-body p {
+  margin: 0 0 16px;
+  color: #7a6240;
+  font-size: 12px;
+  line-height: 1.8;
+  flex: 1;
+}
+.bravo-blog-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #7a4f00;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: auto;
+  transition: gap .15s ease;
+}
+.bravo-blog-card:hover .bravo-blog-link {
+  gap: 8px;
+}
+
+@media (max-width: 700px) {
+  .bravo-news-card {
+    width: min(80vw, 330px);
+    flex-direction: column;
+  }
+  .bravo-news-card-img {
+    flex: 0 0 140px;
+    width: 100%;
+  }
+  .bravo-blog-card {
+    width: min(78vw, 300px);
+  }
+  .bravo-blog-card-img {
+    height: 148px;
+  }
+}
+
+
 .bravo-proof { padding: 35px 0; background: #f5f6f9; }
 .bravo-proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .bravo-proof-grid > div { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px; text-align: center; }
@@ -723,3 +922,110 @@
   .bravo-rail-track { animation: none; }
   .bravo-rail-window { overflow-x: auto; scrollbar-width: thin; }
 }
+
+/* ─── Hero entrance animation ──────────────────────────────────────────── */
+@keyframes bravo-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bravo-hero-animate {
+  animation: bravo-hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bravo-hero-animate .bravo-eyebrow    { animation: bravo-hero-in 0.8s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bravo-hero-animate h1                { animation: bravo-hero-in 0.9s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bravo-hero-animate .bravo-hero-lede  { animation: bravo-hero-in 0.9s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bravo-hero-animate .bravo-hero-actions { animation: bravo-hero-in 0.9s 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bravo-hero-animate .bravo-trust-row  { animation: bravo-hero-in 0.9s 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ─── Smooth FAQ accordion ─────────────────────────────────────────────── */
+.bravo-faq-item > p {
+  animation: bravo-hero-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── Scroll-reveal animations ──────────────────────────────────────────────
+   Elements start hidden; CSS transitions kick in when JS adds data-revealed.
+   Uses will-change only while animating to avoid memory waste.
+   ──────────────────────────────────────────────────────────────────────── */
+
+[data-reveal] {
+  will-change: transform, opacity;
+}
+[data-revealed] {
+  will-change: auto;
+}
+
+/* Fade up (default) */
+[data-reveal="up"] {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal="up"][data-revealed] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide from left */
+[data-reveal="left"] {
+  opacity: 0;
+  transform: translateX(-48px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal="left"][data-revealed] {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide from right */
+[data-reveal="right"] {
+  opacity: 0;
+  transform: translateX(48px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal="right"][data-revealed] {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Fade only */
+[data-reveal="fade"] {
+  opacity: 0;
+  transition: opacity 0.75s ease;
+}
+[data-reveal="fade"][data-revealed] {
+  opacity: 1;
+}
+
+/* Stagger delay helpers */
+[data-delay="100"] { transition-delay: 0.1s; }
+[data-delay="150"] { transition-delay: 0.15s; }
+[data-delay="200"] { transition-delay: 0.2s; }
+[data-delay="250"] { transition-delay: 0.25s; }
+[data-delay="300"] { transition-delay: 0.3s; }
+[data-delay="350"] { transition-delay: 0.35s; }
+[data-delay="400"] { transition-delay: 0.4s; }
+[data-delay="500"] { transition-delay: 0.5s; }
+
+/* ─── Performance: reduce layout thrash on scroll ──────────────────────── */
+.bravo-hero-art img {
+  content-visibility: auto;
+}
+.bravo-site section {
+  contain: layout style;
+}
+/* Prevent layout shift from lazy images */
+img[loading="lazy"] {
+  image-rendering: auto;
+}
+

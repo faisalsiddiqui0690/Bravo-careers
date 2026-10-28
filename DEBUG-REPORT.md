@@ -1,8 +1,8 @@
-# 🔍 Full Project Debug Report - NPquantumtech
+# 🔍 Full Project Debug Report - Bravo Careers
 
 ## ✅ Issues Fixed
 
-### 1. **Remaining "IP Technologies" References - FIXED ✅**
+### 1. **Remaining "Bravo Careers" References - FIXED ✅**
 
 Found and replaced in:
 - ✅ `src/pages/About.jsx` - Page title and heading
@@ -120,13 +120,13 @@ npm audit fix
 
 ### Frontend Structure:
 ```
-iptechnology-frontend/
+bravo-careers-frontend/
 ├── src/
 │   ├── assets/
 │   │   ├── nplogo.png ✅ (USING)
 │   │   ├── iplogo.png ❌ (OLD - not used)
 │   │   ├── ip-technologies-logo.png ❌ (OLD - not used)
-│   │   ├── ipshopylogo.png ❌ (OLD - not used)
+│   │   ├── old-logo.png ❌ (removed)
 │   │   ├── slider1.jpeg ⚠️ (LARGE)
 │   │   ├── slider2.jpg ⚠️ (LARGE)
 │   │   └── slider3.jpg ⚠️ (LARGE)
@@ -155,7 +155,7 @@ iptechnology-frontend/
 - [ ] Test on mobile device
 - [ ] Test on different browsers (Chrome, Firefox, Safari, Edge)
 - [ ] Test dark/light theme toggle
-- [ ] Verify no "IP Technologies" text visible anywhere
+- [ ] Verify no "Bravo Careers" text visible anywhere
 
 ### Automated Tests:
 ```bash
@@ -186,7 +186,7 @@ npm run preview
 **Status**: ✅ Checked - All paths use relative imports
 
 ### 3. **Email Template Issues**
-**Symptom**: Emails showing "IP Technologies"
+**Symptom**: Emails showing "Bravo Careers"
 **Cause**: Cached templates or not restarting backend
 **Status**: ✅ Fixed - All templates updated
 **Action**: Restart backend server to see changes
@@ -197,7 +197,7 @@ npm run preview
 **Status**: ⚠️ May need database update
 **Action**: Run migration:
 ```bash
-cd d:\Faisal\iptechnology-backend
+cd d:\Faisal\bravo-careers-backend
 node scripts/migrate.js
 ```
 
@@ -206,18 +206,18 @@ node scripts/migrate.js
 ## 🔄 Database Update Needed
 
 The admin email was changed from:
-- `admin@iptechnologies.in` → `admin@npquantumtech.com`
+- `SUPER_ADMIN_EMAIL` → `SUPER_ADMIN_EMAIL`
 
 **If you can't login**, update the database:
 
 ```sql
 -- Option 1: SQL Query
 UPDATE admin_users 
-SET email = 'admin@npquantumtech.com' 
-WHERE email = 'admin@iptechnologies.in';
+SET email = 'SUPER_ADMIN_EMAIL' 
+WHERE email = 'SUPER_ADMIN_EMAIL';
 
 -- Option 2: Run migration script
-cd d:\Faisal\iptechnology-backend
+cd d:\Faisal\bravo-careers-backend
 node scripts/migrate.js
 ```
 
@@ -228,7 +228,7 @@ node scripts/migrate.js
 ### Before Deployment:
 1. **Build production version**
    ```bash
-   cd d:\Faisal\iptechnology-frontend
+   cd d:\Faisal\bravo-careers-frontend
    npm run build
    ```
 
@@ -237,9 +237,9 @@ node scripts/migrate.js
    npm run preview
    ```
 
-3. **Check for "IP Technologies" text**
+3. **Check for "Bravo Careers" text**
    - Open site in browser
-   - Search page source (Ctrl+F): "IP Technologies"
+   - Search page source (Ctrl+F): "Bravo Careers"
    - Should find: 0 results ✅
 
 4. **Verify logo displays**
@@ -247,7 +247,7 @@ node scripts/migrate.js
    - Check admin sidebar logo
    - Check login page logo
    - Check analytics graph logo
-   - All should show NPquantumtech logo ✅
+   - All should show Bravo Careers logo ✅
 
 5. **Test all pages**
    - Home ✅
@@ -278,11 +278,11 @@ node scripts/migrate.js
 ### Environment Variables to Update:
 ```env
 # Backend (.env)
-EMAIL_FROM_NAME=NPquantumtech
-DB_NAME=npquantumtech
+EMAIL_FROM_NAME=Bravo Careers
+DB_NAME=bravo_careers
 
 # Frontend (if needed)
-VITE_APP_NAME=NPquantumtech
+VITE_APP_NAME=Bravo Careers
 ```
 
 ---
@@ -290,7 +290,7 @@ VITE_APP_NAME=NPquantumtech
 ## 🎉 Summary
 
 ### ✅ Everything Fixed:
-- All "IP Technologies" references replaced with "NPquantumtech"
+- All "Bravo Careers" references replaced with "Bravo Careers"
 - All logos updated to `nplogo.png`
 - Production build optimized and working
 - No code errors or warnings

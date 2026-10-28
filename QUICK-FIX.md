@@ -14,7 +14,7 @@ Press `Ctrl + C` in your terminal to stop `npm run dev`
 
 ### Step 2: Build for Production
 ```bash
-cd d:\Faisal\iptechnology-frontend
+cd d:\Faisal\bravo-careers-frontend
 npm run build
 ```
 ✅ **Done!** (This creates optimized files in `dist` folder)

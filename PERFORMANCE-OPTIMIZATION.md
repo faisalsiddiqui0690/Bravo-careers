@@ -1,4 +1,4 @@
-# Performance Optimization Guide - NPquantumtech
+# Performance Optimization Guide - Bravo Careers
 
 ## ✅ Optimizations Implemented
 
@@ -46,7 +46,7 @@ Added lightweight loading spinner instead of full page loader
 
 ### Step 1: Build for Production
 ```bash
-cd d:\Faisal\iptechnology-frontend
+cd d:\Faisal\bravo-careers-frontend
 npm run build
 ```
 

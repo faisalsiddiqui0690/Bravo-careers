@@ -4,13 +4,11 @@ import api from '../services/api';
 import { resolveImageUrl } from '../../services/api';
 
 const blank = {
-  id: null, title: '', slug: '', icon: 'Briefcase', description: '', image: '', imageAlt: '',
-  detailIntro: '', detailDescription: '', points: '', outcomes: '', isPublished: true,
+  id: null, title: '', slug: '', icon: 'Briefcase', image: '', imageAlt: '',
+  detailIntro: '', detailDescription: '', isPublished: true,
 };
 const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white';
 const fieldClass = 'grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300';
-const listToText = (value) => Array.isArray(value) ? value.join('\n') : '';
-
 export default function AdminServices() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +17,7 @@ export default function AdminServices() {
   const [form, setForm] = useState(blank);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [notice, setNotice] = useState('');
 
@@ -37,15 +36,13 @@ export default function AdminServices() {
   useEffect(() => { loadServices(); }, []);
 
   const filtered = useMemo(() => services.filter((service) => (
-    `${service.title} ${service.description}`.toLowerCase().includes(search.toLowerCase())
+    `${service.title} ${service.detailIntro}`.toLowerCase().includes(search.toLowerCase())
   )), [services, search]);
 
   const edit = (service) => {
     setForm({
       ...blank,
       ...service,
-      points: listToText(service.points),
-      outcomes: listToText(service.outcomes),
     });
     setShowForm(true);
   };
@@ -56,8 +53,7 @@ export default function AdminServices() {
     setNotice('');
     const data = {
       ...form,
-      points: form.points.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
-      outcomes: form.outcomes.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
+      imageAlt: form.image ? form.title.trim() : '',
     };
     try {
       const response = form.id
@@ -84,6 +80,29 @@ export default function AdminServices() {
       await loadServices();
     } catch (deleteError) {
       setNotice(deleteError.message || 'Could not delete service.');
+    }
+  };
+
+  const uploadImage = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    setUploadingImage(true);
+    setNotice('');
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const response = await api.uploadImage('services', formData);
+      if (!response?.success || !response.data?.imageUrl) {
+        throw new Error(response?.message || 'Image upload did not return a URL.');
+      }
+      setForm((current) => ({ ...current, image: response.data.imageUrl }));
+      setNotice('Image uploaded to Cloudinary.');
+    } catch (uploadError) {
+      setNotice(uploadError.message || 'Could not upload image.');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -120,7 +139,7 @@ export default function AdminServices() {
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${service.isPublished ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}>{service.isPublished ? 'Published' : 'Draft'}</span>
                 </div>
                 <p className="mt-1 text-xs text-slate-400">/{service.slug}</p>
-                <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{service.description}</p>
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{service.detailIntro}</p>
               </div>
               {service.image && <img src={resolveImageUrl(service.image)} alt="" className="h-16 w-20 shrink-0 rounded-lg object-cover" />}
             </div>
@@ -146,15 +165,15 @@ export default function AdminServices() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className={fieldClass}>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClass} /></label>
-              <label className={fieldClass}>URL slug<input value={form.slug || ''} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Auto-generated from title" className={inputClass} /></label>
-              <label className={fieldClass}>Icon name<input value={form.icon || ''} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="Briefcase, Sparkles, GraduationCap…" className={inputClass} /></label>
-              <label className={fieldClass}>Image URL<input value={form.image || ''} onChange={(e) => setForm({ ...form, image: e.target.value })} className={inputClass} /></label>
-              <label className={`${fieldClass} sm:col-span-2`}>Card description<textarea required rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClass} /></label>
-              <label className={fieldClass}>Image alt text<input value={form.imageAlt || ''} onChange={(e) => setForm({ ...form, imageAlt: e.target.value })} className={inputClass} /></label>
+              <label className={fieldClass}>Service icon<select value={form.icon || 'Briefcase'} onChange={(e) => setForm({ ...form, icon: e.target.value })} className={inputClass}><option>Briefcase</option><option>Building2</option><option>Globe2</option><option>GraduationCap</option><option>ShieldCheck</option><option>Sparkles</option></select></label>
+              <div className={fieldClass}>
+                <label htmlFor="service-image">Service image</label>
+                <input id="service-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" onChange={uploadImage} disabled={uploadingImage} className={inputClass} />
+                <span className="text-xs font-normal text-slate-500">{uploadingImage ? 'Uploading image…' : 'Optional · JPG, PNG, WebP, GIF or AVIF · max 5 MB'}</span>
+                {form.image && <div className="flex items-center gap-3"><img src={resolveImageUrl(form.image)} alt="" className="h-16 w-24 rounded-lg object-cover" /><button type="button" className="text-xs font-semibold text-red-600" onClick={() => setForm({ ...form, image: '', imageAlt: '' })}>Remove image</button></div>}
+              </div>
               <label className={fieldClass}>Detail page introduction<input value={form.detailIntro || ''} onChange={(e) => setForm({ ...form, detailIntro: e.target.value })} className={inputClass} /></label>
               <label className={`${fieldClass} sm:col-span-2`}>Detail page description<textarea rows={4} value={form.detailDescription || ''} onChange={(e) => setForm({ ...form, detailDescription: e.target.value })} className={inputClass} /></label>
-              <label className={fieldClass}>Card bullet points<textarea rows={4} value={form.points} onChange={(e) => setForm({ ...form, points: e.target.value })} placeholder="One point per line" className={inputClass} /></label>
-              <label className={fieldClass}>Detail page outcomes<textarea rows={4} value={form.outcomes} onChange={(e) => setForm({ ...form, outcomes: e.target.value })} placeholder="One outcome per line" className={inputClass} /></label>
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 sm:col-span-2"><input type="checkbox" checked={Boolean(form.isPublished)} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} className="h-4 w-4 accent-blue-600" /> Publish on the website</label>
             </div>
             <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">

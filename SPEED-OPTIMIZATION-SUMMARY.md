@@ -181,14 +181,14 @@ Asset Update: Only downloads changed files (hash in filename)
 
 ### 1. Deploy Frontend
 ```bash
-cd d:\Faisal\iptechnology-frontend
+cd d:\Faisal\bravo-careers-frontend
 npm run build
 # Upload 'dist' folder to hosting
 ```
 
 ### 2. Deploy Backend
 ```bash
-cd d:\Faisal\iptechnology-backend
+cd d:\Faisal\bravo-careers-backend
 # Restart Node.js server to apply compression middleware
 npm start
 ```

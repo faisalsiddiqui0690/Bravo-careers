@@ -106,7 +106,7 @@ const AdminHeader = ({ onLogout, isMobile, onToggleSidebar }) => {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{getUserName()}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email || 'admin@bravocareers.co.uk'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email || 'Admin account'}</p>
                   </div>
                 </div>
                 <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 uppercase tracking-wide">

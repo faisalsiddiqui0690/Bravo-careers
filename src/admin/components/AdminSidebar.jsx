@@ -38,19 +38,9 @@ const icons = {
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   ),
-  careers: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
-    </svg>
-  ),
   enquiries: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-    </svg>
-  ),
-  legalPages: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
     </svg>
   ),
   settings: (
@@ -67,9 +57,7 @@ const menuItems = [
   { id: 'blogs', label: 'Blogs', icon: icons.blogs, path: '/admin/blogs' },
   { id: 'news', label: 'News', icon: icons.news, path: '/admin/news' },
   { id: 'reviews',   label: 'Testimonials',   icon: icons.reviews,   path: '/admin/reviews' },
-  { id: 'careers',   label: 'Careers',   icon: icons.careers,   path: '/admin/careers' },
   { id: 'enquiries', label: 'Enquiries', icon: icons.enquiries, path: '/admin/enquiries' },
-  { id: 'legal-pages', label: 'Legal Pages', icon: icons.legalPages, path: '/admin/legal-pages' },
   { id: 'admin-management', label: 'Admin Management', icon: icons.management, path: '/admin/management', superAdminOnly: true },
   { id: 'settings',  label: 'Settings',  icon: icons.settings,  path: '/admin/settings' },
 ];
@@ -157,7 +145,7 @@ const AdminSidebar = ({ isSidebarOpen, onToggleSidebar, isMobile }) => {
                 <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
                   {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Admin'}
                 </p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{user?.email || 'admin@bravocareers.co.uk'}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{user?.email || 'Admin account'}</p>
               </div>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 flex-shrink-0">
                 <polyline points="9 18 15 12 9 6" />

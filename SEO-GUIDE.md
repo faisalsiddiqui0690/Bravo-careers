@@ -1,7 +1,7 @@
-# SEO Implementation Guide for NPquantumtech
+# SEO Implementation Guide for Bravo Careers
 
 ## Overview
-This document outlines the comprehensive SEO implementation for the NPquantumtech website.
+This document outlines the comprehensive SEO implementation for the Bravo Careers website.
 
 ## 1. Meta Tags Implementation
 
@@ -38,7 +38,7 @@ Located in `index.html`, includes:
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "NPquantumtech",
+  "name": "Bravo Careers",
   // ... update other fields as needed
 }
 ```
@@ -53,7 +53,7 @@ function MyPage() {
   return (
     <>
       <SEO 
-        title="Page Title - NPquantumtech"
+        title="Page Title - Bravo Careers"
         description="Page description here"
         keywords="keyword1, keyword2, keyword3"
         canonical="/page-url"
@@ -67,7 +67,7 @@ function MyPage() {
 ### With Structured Data:
 ```jsx
 <SEO 
-  title="Service Name - NPquantumtech"
+  title="Service Name - Bravo Careers"
   description="Service description"
   structuredData={{
     "@context": "https://schema.org",
@@ -75,7 +75,7 @@ function MyPage() {
     "name": "Web Development",
     "provider": {
       "@type": "Organization",
-      "name": "NPquantumtech"
+      "name": "Bravo Careers"
     }
   }}
 />
@@ -96,22 +96,22 @@ function MyPage() {
 ## 5. Page-Specific SEO Recommendations
 
 ### Homepage (/)
-- **Title**: "NPquantumtech - Complete IT Solutions | Web Development, App Development & CRM"
+- **Title**: "Bravo Careers - Complete IT Solutions | Web Development, App Development & CRM"
 - **Keywords**: IT solutions, web development, mobile apps, CRM, cloud services
 - **Priority**: 1.0
 
 ### Services Page (/services)
-- **Title**: "Our Services - Professional IT Solutions | NPquantumtech"
+- **Title**: "Our Services - Professional IT Solutions | Bravo Careers"
 - **Keywords**: web development services, app development, e-commerce, CRM implementation
 - **Priority**: 0.9
 
 ### Projects Page (/projects)
-- **Title**: "Our Projects & Portfolio | NPquantumtech Success Stories"
+- **Title**: "Our Projects & Portfolio | Bravo Careers Success Stories"
 - **Keywords**: web development portfolio, mobile app projects, case studies
 - **Priority**: 0.9
 
 ### Contact Page (/contact)
-- **Title**: "Contact Us - NPquantumtech | Get in Touch for IT Solutions"
+- **Title**: "Contact Us - Bravo Careers | Get in Touch for IT Solutions"
 - **Keywords**: contact IT company, web development inquiry
 - **Priority**: 0.8
 
@@ -190,10 +190,10 @@ function MyPage() {
 Update the structured data in index.html with your actual social media profiles:
 ```javascript
 "sameAs": [
-  "https://www.linkedin.com/company/npquantumtech",
-  "https://twitter.com/npquantumtech",
-  "https://www.facebook.com/npquantumtech",
-  "https://www.instagram.com/npquantumtech"
+  "https://www.linkedin.com/company/your-company",
+  "https://twitter.com/your-company",
+  "https://www.facebook.com/your-company",
+  "https://www.instagram.com/your-company"
 ]
 ```
 

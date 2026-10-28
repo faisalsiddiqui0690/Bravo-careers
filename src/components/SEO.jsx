@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 
 const SEO = ({ 
-  title = "NPquantumtech - Complete IT Solutions | Web Development, App Development & CRM",
-  description = "NPquantumtech delivers professional IT solutions including web development, mobile app development, e-commerce, CRM implementation, and cloud services. Transform your business with cutting-edge technology.",
-  keywords = "IT solutions, web development, mobile app development, e-commerce solutions, CRM implementation, cloud services, software development, digital transformation, NPquantumtech",
-  ogImage = "/nplogo.png",
+  title = "Bravo Careers | UK Career and Founder Support",
+  description = "Practical career and founder support, UK job-search guidance and resources from Bravo Careers.",
+  keywords = "Bravo Careers, UK careers, job search support, CV guidance, founder support, career resources",
+  ogImage = "/bravo-career-services.svg",
   canonical,
   structuredData
 }) => {
   useEffect(() => {
-    const siteUrl = "https://npquantumtech.com";
-    const fullUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
+    const siteUrl = window.location.origin;
+    const fullUrl = canonical ? new URL(canonical, siteUrl).href : window.location.href;
 
     // Update title
     document.title = title;
@@ -37,14 +37,14 @@ const SEO = ({
     updateMetaTag('og:url', fullUrl, true);
     updateMetaTag('og:title', title, true);
     updateMetaTag('og:description', description, true);
-    updateMetaTag('og:image', `${siteUrl}${ogImage}`, true);
+    updateMetaTag('og:image', new URL(ogImage, siteUrl).href, true);
 
     // Update Twitter tags
     updateMetaTag('twitter:card', 'summary_large_image', true);
     updateMetaTag('twitter:url', fullUrl, true);
     updateMetaTag('twitter:title', title, true);
     updateMetaTag('twitter:description', description, true);
-    updateMetaTag('twitter:image', `${siteUrl}${ogImage}`, true);
+    updateMetaTag('twitter:image', new URL(ogImage, siteUrl).href, true);
 
     // Update canonical link
     if (canonical) {
